@@ -1,3 +1,4 @@
-# ixLibs.js
+# ixSnack.js
 
-Test 작성중
+Javascript UI Library
+jQuery + ixBand
