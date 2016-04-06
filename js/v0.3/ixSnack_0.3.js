@@ -291,12 +291,12 @@
                 } else {
                     var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
                         opt = Utils.TRANSFORM + ' ' + options.duration + 'ms ' + easing + ';';
-                        autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
-                            //onTransitionEnd 이벤트가 발생하지 않을경우 대비
-                            if ( typeof callback === 'function' ) callback.call( this, {data: data} );
-                            if ( autoComplete ) clearTimeout( autoComplete );
+                    autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
+                        //onTransitionEnd 이벤트가 발생하지 않을경우 대비
+                        if ( typeof callback === 'function' ) callback.call( this, {data: data} );
+                        if ( autoComplete ) clearTimeout( autoComplete );
 
-                        }, options.duration * 2 ) : null;
+                    }, options.duration * 2 ) : null;
 
                     //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                     setTimeout( function (e) {
@@ -762,7 +762,7 @@
             _$ul.attr( 'style', '' );
             _$items.attr( 'style', '' );
         }
-        
+
         function dispatch ( type ) {
             var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? _endpoint : undefined;
             _$target.triggerHandler( {type: 'ixSlideMax:' + type, currentIndex: _originIdx, totalLength: _originLength, endpoint: endpoint} );
@@ -1148,7 +1148,7 @@
                 onPrev: thumbHandler,
                 onIndex: thumbHandler
             }).setIndex( _options.defaultIndex, _options.defaultIndex );
-            
+
             arrangeItems( _options.defaultIndex );
             _selectIdx = _centerIdx;
             dispatch( 'init' );
@@ -1859,8 +1859,10 @@
 
             if ( arrowKeyType === 'forward' ) {
                 _this.value( _value + options.gap, false, true );
+                setInputValue( false, true, false );
             } else if ( arrowKeyType === 'backward' ) {
                 _this.value( _value - options.gap, false, true );
+                setInputValue( false, true, false );
             }
         }
 
