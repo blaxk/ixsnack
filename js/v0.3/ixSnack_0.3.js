@@ -1,7 +1,7 @@
 /**
  * ixSnack.js - Javascript UI Library
- * jQuery v1.8~ (http://jquery.com) + ixBand v0.8~ (http://ixband.com)
- * @version v0.3 - 160406
+ * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
+ * @version v0.3 - 160419
  * Licensed under the MIT, http://ixsnack.com
  */
 
@@ -119,6 +119,8 @@
 
             return null;
         }()),
+
+        MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
 
         setPlugin: function ( $target, pluginName, plugin, val1, val2 ) {
             //method 호출
@@ -2175,37 +2177,43 @@
             }).type( 'max' ).min( _options.values[0] ).max( _options.max ).value( _options.values[1] ).initialize();
 
             if ( $B.ua.TOUCH_DEVICE ) {
-                setTouchAction( _options.axis === 'horizontal'? 'pan-y' : 'pan-x' );
-
-                //_touchEvent = new $B.mobile.TouchEvent( _$slideBar );
+                _touchEvent = new $B.mobile.TouchEvent( _$slideBar );
                 _docTouchEvent = new $B.mobile.TouchEvent( document );
 
-                _gAxis = new $B.mobile.GestureAxis( _$slideBar, {
-                    onAxis: function (e) {
-                        if ( _disabled ) return;
-                        _docTouchEvent.add( 'touchmove', touchHandler );
-                        _docTouchEvent.add( 'touchend', touchHandler );
-                        _docTouchEvent.add( 'touchcancel', touchHandler );
-
-                        var currentPer = pxToPercent( getEventPos(e) );
-                        _isMouseDown = true;
-                        _activeSlider = getNearSlider( currentPer );
-
-                        dispatch( 'slideStart', true, _activeSlider.type() );
-                        _activeSlider.percent( currentPer );
-                    }
-                }, {aType: _options.axis});
+                if ( Utils.MS_POINTER ) {
+                    setTouchAction( _options.axis === 'horizontal'? 'pan-y' : 'pan-x' );
+                    _touchEvent.add( 'touchstart', touchHandler );
+                } else {
+                    _gAxis = new $B.mobile.GestureAxis( _$slideBar, {onAxis: touchHandler}, {aType: _options.axis});
+                    _$slideBar.on( 'mousedown', dragHandler );
+                }
+            } else {
+                _$slideBar.on( 'mousedown', dragHandler );
             }
-
-            _$slideBar.on( 'mousedown', dragHandler );
         }
 
         function touchHandler (e) {
             if ( _disabled ) return;
-            e.preventDefault();
-            e.stopPropagation();
+
+            if ( e.type != 'axis' ) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
 
             switch ( e.type ) {
+                case 'axis':
+                case 'touchstart':
+                    _docTouchEvent.add( 'touchmove', touchHandler );
+                    _docTouchEvent.add( 'touchend', touchHandler );
+                    _docTouchEvent.add( 'touchcancel', touchHandler );
+
+                    var currentPer = pxToPercent( getEventPos(e) );
+                    _isMouseDown = true;
+                    _activeSlider = getNearSlider( currentPer );
+
+                    dispatch( 'slideStart', true, _activeSlider.type() );
+                    _activeSlider.percent( currentPer );
+                    break;
                 case 'touchcancel':
                 case 'touchend':
                     _isMouseUp = true;
@@ -2474,36 +2482,42 @@
             }).min( _options.min ).max( _options.max ).value( _options.value ).initialize();
 
             if ( $B.ua.TOUCH_DEVICE ) {
-                setTouchAction( _options.axis === 'horizontal'? 'pan-y' : 'pan-x' );
-
-                //_touchEvent = new $B.mobile.TouchEvent( _$slideBar );
+                _touchEvent = new $B.mobile.TouchEvent( _$slideBar );
                 _docTouchEvent = new $B.mobile.TouchEvent( document );
 
-                _gAxis = new $B.mobile.GestureAxis( _$slideBar, {
-                    onAxis: function (e) {
-                        if ( _disabled ) return;
-                        _docTouchEvent.add( 'touchmove', touchHandler );
-                        _docTouchEvent.add( 'touchend', touchHandler );
-                        _docTouchEvent.add( 'touchcancel', touchHandler );
-
-                        var currentPer = pxToPercent( getEventPos(e) );
-                        _isMouseDown = true;
-
-                        dispatch( 'slideStart', true );
-                        _slider.focus().percent( currentPer );
-                    }
-                }, {aType: _options.axis});
+                if ( Utils.MS_POINTER ) {
+                    setTouchAction( _options.axis === 'horizontal'? 'pan-y' : 'pan-x' );
+                    _touchEvent.add( 'touchstart', touchHandler );
+                } else {
+                    _gAxis = new $B.mobile.GestureAxis( _$slideBar, {onAxis: touchHandler}, {aType: _options.axis});
+                    _$slideBar.on( 'mousedown', dragHandler );
+                }
+            } else {
+                _$slideBar.on( 'mousedown', dragHandler );
             }
-
-            _$slideBar.on( 'mousedown', dragHandler );
         }
 
         function touchHandler (e) {
             if ( _disabled ) return;
-            e.preventDefault();
-            e.stopPropagation();
+
+            if ( e.type != 'axis' ) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
 
             switch ( e.type ) {
+                case 'axis':
+                case 'touchstart':
+                    _docTouchEvent.add( 'touchmove', touchHandler );
+                    _docTouchEvent.add( 'touchend', touchHandler );
+                    _docTouchEvent.add( 'touchcancel', touchHandler );
+
+                    var currentPer = pxToPercent( getEventPos(e) );
+                    _isMouseDown = true;
+
+                    dispatch( 'slideStart', true );
+                    _slider.focus().percent( currentPer );
+                    break;
                 case 'touchcancel':
                 case 'touchend':
                     _isMouseUp = true;
