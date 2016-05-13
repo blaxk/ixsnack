@@ -1,12 +1,12 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3 - 160419
+ * @version v0.3.1 - 160513
  * Licensed under the MIT, http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
-    var _ixSnack = {VERSION: '0.3'},
+    var _ixSnack = {VERSION: '0.3.1'},
         _pluginId = 1,
         _pluginPool = {};
 
@@ -634,9 +634,11 @@
         }
 
         function getCorrectEndpoint ( pos, idx ) {
-            if ( _options.correctEndpoint && !_options.loop && !_options.paging && _endpoint ) {
-                var isOverPos = ( (_totalLength - idx) * _itemSize ) < _viewportSize;
-                if ( isOverPos ) pos = -( _totalLength * _itemSize - _viewportSize );
+            if ( _originLength >= _options.viewLength ) {
+                if ( _options.correctEndpoint && !_options.loop && !_options.paging && _endpoint ) {
+                    var isOverPos = ( (_totalLength - idx) * _itemSize ) < _viewportSize;
+                    if ( isOverPos ) pos = -( _totalLength * _itemSize - _viewportSize );
+                }
             }
             return pos;
         }
