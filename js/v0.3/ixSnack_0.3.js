@@ -634,7 +634,7 @@
         }
 
         function getCorrectEndpoint ( pos, idx ) {
-            if ( _originLength >= _options.viewLength ) {
+            if ( _originLength > _options.viewLength ) {
                 if ( _options.correctEndpoint && !_options.loop && !_options.paging && _endpoint ) {
                     var isOverPos = ( (_totalLength - idx) * _itemSize ) < _viewportSize;
                     if ( isOverPos ) pos = -( _totalLength * _itemSize - _viewportSize );
