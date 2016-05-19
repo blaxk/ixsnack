@@ -1,7 +1,7 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.1 - 160513
+ * @version v0.3.1 - 160519
  * Licensed under the MIT, http://ixsnack.com
  */
 
@@ -2146,9 +2146,10 @@
 
                     setProgress();
 
+                    if ( e.isUserInput ) dispatch( 'slideStart', true, this.type() );
                     if ( _maxSlider ) _maxSlider.min( e.value, e.currentValue );
                     if ( isChange ) dispatch( 'change', e.isUserInput || _isMouseDown, this.type() );
-                    if ( _isMouseUp ) {
+                    if ( _isMouseUp || e.isUserInput ) {
                         dispatch( 'slideEnd', true, this.type() );
                     }
                 },
@@ -2166,9 +2167,10 @@
 
                     setProgress();
 
+                    if ( e.isUserInput ) dispatch( 'slideStart', true, this.type() );
                     if ( _minSlider ) _minSlider.max( e.value, e.currentValue );
                     if ( isChange ) dispatch( 'change', e.isUserInput || _isMouseDown, this.type() );
-                    if ( _isMouseUp ) {
+                    if ( _isMouseUp || e.isUserInput ) {
                         dispatch( 'slideEnd', true, this.type() );
                     }
                 },
@@ -2474,8 +2476,9 @@
 
                     setProgress();
 
+                    if ( e.isUserInput ) dispatch( 'slideStart', true );
                     if ( isChange ) dispatch( 'change', e.isUserInput || _isMouseDown );
-                    if ( _isMouseUp ) dispatch( 'slideEnd', true );
+                    if ( _isMouseUp || e.isUserInput ) dispatch( 'slideEnd', true );
                 },
                 onMouseUp: function (e) {
                     _currentPer = this.percent();
