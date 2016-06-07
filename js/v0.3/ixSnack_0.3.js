@@ -1,12 +1,12 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.1 - 160519
+ * @version v0.3.2 - 160607
  * Licensed under the MIT, http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
-    var _ixSnack = {VERSION: '0.3.1'},
+    var _ixSnack = {VERSION: '0.3.2'},
         _pluginId = 1,
         _pluginPool = {};
 
@@ -519,6 +519,8 @@
 
         //아이템 origin 갯수 대비 실제 갯수 설정
         function setItems () {
+            if ( !_totalLength ) return;
+
             _$items.each( function ( idx, el ) {
                 //origin-index 속성 추가
                 $( el ).attr( 'data-origin-idx', idx );
@@ -679,7 +681,7 @@
         }
 
         function setAutoPlay () {
-            if ( !_options.autoPlay ) return;
+            if ( !_options.autoPlay || !_totalLength ) return;
 
             _timer = new $B.utils.Timer( _options.delay, _totalLength, {
                 onTimer: function (e) {
@@ -702,10 +704,11 @@
 
         //ul, li, viewport 사이즈 설정
         function setSize () {
+            if ( _options.viewportRatio ) _$viewport.css( 'height', getViewportHeight() + 'px' );
+            if ( !_totalLength ) return;
+
             var sizeProp, viewportSizeProp, marginProps, itemStyle = {}, ulStyle = {},
                 itemMargins = getItemMargins(), itemMarginTotal = itemMargins[0] + itemMargins[1];
-
-            if ( _options.viewportRatio ) _$viewport.css( 'height', getViewportHeight() + 'px' );
 
             _itemSize = getItemSize();
 
@@ -1086,7 +1089,7 @@
         };
 
         this.changeIndex = function ( idx ) {
-            if ( idx > _totalLength || idx < 0 ) return;
+            if ( idx > _totalLength || idx < 0 || !_totalLength ) return;
 
             if ( _selectIdx < idx ) {
                 this.next( idx );
@@ -1096,16 +1099,18 @@
         };
 
         this.next = function ( selectIdx, isSwipe ) {
-            if ( _disabled ) return;
+            if ( _disabled || !_totalLength ) return;
             selectMove( _selectIdx + 1, selectIdx, 'next', isSwipe );
         };
 
         this.prev = function ( selectIdx, isSwipe ) {
-            if ( _disabled ) return;
+            if ( _disabled || !_totalLength ) return;
             selectMove( _selectIdx - 1, selectIdx, 'prev', isSwipe );
         };
 
         this.resize = function () {
+            if ( !_totalLength ) return;
+
             _this.stopTimer();
             removeSize();
             setSize();
@@ -1380,10 +1385,11 @@
 
         //사이즈 설정
         function setSize () {
+            if ( _options.viewportRatio ) _$viewport.css( 'height', getViewportHeight() + 'px' );
+            if ( !_totalLength ) return;
+
             var sizeProp, marginProps, itemStyle = {}, ulStyle = {},
                 itemMargins = getItemMargins(), itemMarginTotal = itemMargins[0] + itemMargins[1];
-
-            if ( _options.viewportRatio ) _$viewport.css( 'height', getViewportHeight() + 'px' );
 
             _itemSize = getItemSize();
 
@@ -1463,8 +1469,11 @@
         }
 
         function dispatch ( type ) {
-            var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? isEndpoint() : undefined;
-            _$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: _selectIdx, totalLength: _totalLength, endpoint: endpoint} );
+            var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? isEndpoint() : undefined,
+                currentIndex = _selectIdx;
+
+            if ( !_totalLength ) currentIndex = NaN;
+            _$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: currentIndex, totalLength: _totalLength, endpoint: endpoint} );
         }
     };
 
@@ -1495,7 +1504,7 @@
         };
 
         this.changeIndex = function ( idx ) {
-            if ( idx > _totalLength || idx < 0 ) return;
+            if ( idx > _totalLength || idx < 0 || !_totalLength ) return;
 
             if ( _selectIdx < idx ) {
                 this.next( idx );
@@ -1505,7 +1514,7 @@
         };
 
         this.next = function ( selectIdx ) {
-            if ( _disabled ) return;
+            if ( _disabled || !_totalLength ) return;
             var idx = correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : _selectIdx + 1 );
 
             if ( _selectIdx != idx ) {
@@ -1515,7 +1524,7 @@
         };
 
         this.prev = function ( selectIdx ) {
-            if ( _disabled ) return;
+            if ( _disabled || !_totalLength ) return;
             var idx = correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : _selectIdx - 1 );
 
             if ( _selectIdx != idx ) {
@@ -1716,8 +1725,11 @@
         }
 
         function dispatch ( type ) {
-            var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? isEndpoint() : undefined;
-            _$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: _selectIdx, totalLength: _totalLength, endpoint: endpoint} );
+            var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? isEndpoint() : undefined,
+                currentIndex = _selectIdx;
+
+            if ( !_totalLength ) currentIndex = NaN;
+            _$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: _totalLength, endpoint: endpoint} );
         }
     };
 
