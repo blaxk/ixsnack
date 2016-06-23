@@ -1,12 +1,12 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.2 - 160607
+ * @version v0.3.3 - 160623
  * Licensed under the MIT, http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
-    var _ixSnack = {VERSION: '0.3.2'},
+    var _ixSnack = {VERSION: '0.3.3'},
         _pluginId = 1,
         _pluginPool = {};
 
@@ -382,15 +382,17 @@
             _timer, _swipe, _listIndexManager, _thumbController;
 
         var _originLength, _totalLength, _itemSize, _viewportSize,
-            _selectIdx = 0, _originIdx = -1, _oldOriginIdx = -1,  _currentPos = 0, _disabled = false, _endpoint = false;
+            _selectIdx = 0, _originIdx = -1, _oldOriginIdx = -1,  _currentPos = 0, _disabled = false, _endpoint = false, _isTimerBlock = false;
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
-            if ( _timer ) _timer.reset().start();
+            _isTimerBlock = false;
+            playTimer();
         };
 
         this.stopTimer = function () {
-            if ( _timer ) _timer.stop();
+            _isTimerBlock = true;
+            pauseTimer();
         };
 
         this.changeIndex = function ( originIdx ) {
@@ -408,7 +410,7 @@
         };
 
         this.clear = function () {
-            this.stopTimer();
+            pauseTimer();
             removeEvents();
             removeSize();
             _$ul.stop();
@@ -418,7 +420,7 @@
         };
 
         this.resize = function () {
-            _this.stopTimer();
+            pauseTimer();
             removeSize();
             setSize();
             moveItems( _selectIdx, 'none', true, true );
@@ -557,7 +559,7 @@
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
                         if ( _disabled ) return;
-                        _this.stopTimer();
+                        pauseTimer();
                         dispatch( 'touchStart' );
                     },
                     onMove: function (e) {
@@ -566,7 +568,7 @@
                     },
                     onSwipe: function (e) {
                         if ( _disabled ) return;
-                        _this.startTimer();
+                        playTimer();
                         dispatch( 'touchEnd' );
 
                         //이동값이 변동이 없으면 transitionend 이벤트가 발생하지 않기 때문
@@ -629,9 +631,9 @@
 
         function mouseHandler (e) {
             if ( e.type === 'mouseover' ) {
-                _this.stopTimer();
+                pauseTimer();
             } else {
-                _this.startTimer();
+                playTimer();
             }
         }
 
@@ -651,7 +653,7 @@
                 isUnaltered = _oldOriginIdx === _originIdx;
 
             _disabled = true;
-            _this.stopTimer();
+            pauseTimer();
             _thumbController.disable().setIndex( _originIdx, idx );
 
             if ( motionType === 'slide' ) {
@@ -671,7 +673,7 @@
             }
 
             _thumbController.enable();
-            _this.startTimer();
+            playTimer();
             _disabled = false;
 
             if ( !e.data.isSilent && !e.data.isCorrect ) {
@@ -692,7 +694,7 @@
                     }
                 },
                 onComplete: function (e) {
-                    _this.startTimer();
+                    playTimer();
                 }
             }).start();
         }
@@ -768,6 +770,14 @@
             _$viewport.attr( 'style', '' );
             _$ul.attr( 'style', '' );
             _$items.attr( 'style', '' );
+        }
+
+        function playTimer () {
+            if ( !_isTimerBlock && _timer ) _timer.reset().start();
+        }
+
+        function pauseTimer () {
+            if ( _timer ) _timer.stop();
         }
 
         function dispatch ( type ) {
@@ -1076,16 +1086,18 @@
             _timer, _swipe, _thumbController;
 
         var _totalLength, _itemSize,
-            _selectIdx = 0, _disabled = false,
+            _selectIdx = 0, _disabled = false, _isTimerBlock = false,
             _centerIdx, _prevIdx, _nextIdx, _currentPos = 0;
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
-            if ( _timer ) _timer.reset().start();
+            _isTimerBlock = false;
+            playTimer();
         };
 
         this.stopTimer = function () {
-            if ( _timer ) _timer.stop();
+            _isTimerBlock = true;
+            pauseTimer();
         };
 
         this.changeIndex = function ( idx ) {
@@ -1111,15 +1123,15 @@
         this.resize = function () {
             if ( !_totalLength ) return;
 
-            _this.stopTimer();
+            pauseTimer();
             removeSize();
             setSize();
             arrangeItems( _selectIdx );
-            _this.startTimer();
+            playTimer();
         };
 
         this.clear = function () {
-            this.stopTimer();
+            pauseTimer();
             removeEvents();
             removeStyle();
             _$ul.stop();
@@ -1199,7 +1211,7 @@
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
                         if ( _disabled ) return;
-                        _this.stopTimer();
+                        pauseTimer();
                         dispatch( 'touchStart' );
                     },
                     onMove: function (e) {
@@ -1208,7 +1220,7 @@
                     },
                     onSwipe: function (e) {
                         if ( _disabled ) return;
-                        _this.startTimer();
+                        playTimer();
                         dispatch( 'touchEnd' );
 
                         //이동값이 변동이 없으면 transitionend 이벤트가 발생하지 않기 때문
@@ -1311,7 +1323,7 @@
             var nextPos = -_itemSize;
 
             _disabled = true;
-            _this.stopTimer();
+            pauseTimer();
             _thumbController.disable().setIndex( idx, idx );
 
             if ( moveType === 'next' ) {
@@ -1333,7 +1345,7 @@
             var oldIdx = _selectIdx;
 
             _thumbController.enable();
-            _this.startTimer();
+            playTimer();
             _disabled = false;
             _selectIdx = e.data.idx;
 
@@ -1378,7 +1390,7 @@
                     }
                 },
                 onComplete: function (e) {
-                    _this.startTimer();
+                    playTimer();
                 }
             }).start();
         }
@@ -1462,10 +1474,18 @@
 
         function mouseHandler (e) {
             if ( e.type === 'mouseover' ) {
-                _this.stopTimer();
+                pauseTimer();
             } else {
-                _this.startTimer();
+                playTimer();
             }
+        }
+
+        function playTimer () {
+            if ( !_isTimerBlock && _timer ) _timer.reset().start();
+        }
+
+        function pauseTimer () {
+            if ( _timer ) _timer.stop();
         }
 
         function dispatch ( type ) {
@@ -1492,15 +1512,17 @@
         var _options = Utils.getOptions( _$target.attr('data-ix-options') ),
             _timer, _swipe, _thumbController;
 
-        var _totalLength, _selectIdx = 0, _disabled = false;
+        var _totalLength, _selectIdx = 0, _disabled = false, _isTimerBlock = false;
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
-            if ( _timer ) _timer.reset().start();
+            _isTimerBlock = false;
+            playTimer();
         };
 
         this.stopTimer = function () {
-            if ( _timer ) _timer.stop();
+            _isTimerBlock = true;
+            pauseTimer();
         };
 
         this.changeIndex = function ( idx ) {
@@ -1534,7 +1556,7 @@
         };
 
         this.clear = function () {
-            this.stopTimer();
+            pauseTimer();
             removeEvents();
             removeStyle();
             _$ul.stop();
@@ -1618,7 +1640,7 @@
                     }
                 },
                 onComplete: function (e) {
-                    _this.startTimer();
+                    playTimer();
                 }
             }).start();
         }
@@ -1630,12 +1652,12 @@
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
                         if ( _disabled ) return;
-                        _this.stopTimer();
+                        pauseTimer();
                         dispatch( 'touchStart' );
                     },
                     onSwipe: function (e) {
                         if ( _disabled ) return;
-                        _this.startTimer();
+                        playTimer();
                         dispatch( 'touchEnd' );
                         swipe( e.swipe );
                     }
@@ -1665,7 +1687,7 @@
         //아이템 이동
         function overlayItem ( idx, motionType, isSilent ) {
             _disabled = true;
-            _this.stopTimer();
+            pauseTimer();
             _thumbController.disable().setIndex( idx, idx );
 
             if ( motionType === 'overlay' ) {
@@ -1683,7 +1705,7 @@
             var oldIdx = _selectIdx;
 
             _thumbController.enable();
-            _this.startTimer();
+            playTimer();
             _disabled = false;
             _selectIdx = e.data.idx;
 
@@ -1718,10 +1740,18 @@
 
         function mouseHandler (e) {
             if ( e.type === 'mouseover' ) {
-                _this.stopTimer();
+                pauseTimer();
             } else {
-                _this.startTimer();
+                playTimer();
             }
+        }
+
+        function playTimer () {
+            if ( !_isTimerBlock && _timer ) _timer.reset().start();
+        }
+
+        function pauseTimer () {
+            if ( _timer ) _timer.stop();
         }
 
         function dispatch ( type ) {
