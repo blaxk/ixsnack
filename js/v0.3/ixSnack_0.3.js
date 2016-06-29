@@ -1,12 +1,12 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.3 - 160623
+ * @version v0.3.4 - 160629
  * Licensed under the MIT, http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
-    var _ixSnack = {VERSION: '0.3.3'},
+    var _ixSnack = {VERSION: '0.3.4'},
         _pluginId = 1,
         _pluginPool = {};
 
@@ -265,7 +265,8 @@
                     addFirstStr: ( opt.addFirstStr )? opt.addFirstStr.value : '',
                     addLastStr: ( opt.addLastStr )? opt.addLastStr.value : '',
                     value: ( opt.value )? opt.value.value : null,
-                    disable: ( opt.disable )? opt.disable.value : false
+                    disable: ( opt.disable )? opt.disable.value : false,
+                    touchDisable: ( opt.touchDisable )? opt.touchDisable.value : false
                 };
 
             defaultOpt.moveLength = ( opt.moveLength )? opt.moveLength.value : defaultOpt.viewLength;
@@ -555,7 +556,7 @@
         function addEvents () {
             if ( _options.autoPlay ) _$target.on( 'mouseover mouseout', mouseHandler );
 
-            if ( $B.ua.TOUCH_DEVICE && _totalLength > _options.viewLength ) {
+            if ( !_options.touchDisable && $B.ua.TOUCH_DEVICE && _totalLength > _options.viewLength ) {
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
                         if ( _disabled ) return;
@@ -1207,7 +1208,7 @@
         function addEvents () {
             if ( _options.autoPlay ) _$target.on( 'mouseover mouseout', mouseHandler );
 
-            if ( $B.ua.TOUCH_DEVICE && _totalLength > 1 ) {
+            if ( !_options.touchDisable && $B.ua.TOUCH_DEVICE && _totalLength > 1 ) {
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
                         if ( _disabled ) return;
@@ -1648,7 +1649,7 @@
         function addEvents () {
             if ( _options.autoPlay ) _$target.on( 'mouseover mouseout', mouseHandler );
 
-            if ( $B.ua.TOUCH_DEVICE && _totalLength > 1 ) {
+            if ( !_options.touchDisable && $B.ua.TOUCH_DEVICE && _totalLength > 1 ) {
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
                         if ( _disabled ) return;
