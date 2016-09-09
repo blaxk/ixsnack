@@ -1,12 +1,12 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.4 - 160629
+ * @version v0.3.5 - 160907
  * Licensed under the MIT, http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
-    var _ixSnack = {VERSION: '0.3.4'},
+    var _ixSnack = {VERSION: '0.3.5'},
         _pluginId = 1,
         _pluginPool = {};
 
@@ -15,7 +15,9 @@
             //setter
             if ( $B.object.is(val1) ) {
                 return this.each( function ( idx, el ) {
-                    var value = Utils.objToOptions( $(el).attr('data-ix-options'), val1 );
+                    var optionData = $( el ).attr( 'data-ix-options' ),
+                        value = ( optionData )? Utils.objToOptions( optionData, val1 ) : Utils.objToOptions( '', val1 );
+
                     $( el ).attr( 'data-ix-options', value ).addClass( 'ix-options-apply' );
                 });
             } else {
@@ -180,7 +182,7 @@
                     if ( reg.test(optionStr) ) {
                         optionStr = optionStr.replace( reg, reKey + ':' + value + ';' );
                     } else {
-                        if ( !/;\s*?$/.test(optionStr) ) optionStr += ';';
+                        if ( optionStr && !/;\s*?$/.test(optionStr) ) optionStr += ';';
                         optionStr += ' ' + reKey + ':' + value;
                     }
                 }
@@ -226,7 +228,7 @@
                     str = Boolean( str );
                 } else if ( str.indexOf('false') > -1 ) {
                     str = Boolean();
-                } else if ( /^[0-9\.\-]+$/.test(str) ) {
+                } else if ( /^-*[0-9\.]+$/.test(str) ) {
                     str = Number( str );
                 }
             }
@@ -266,12 +268,15 @@
                     addLastStr: ( opt.addLastStr )? opt.addLastStr.value : '',
                     value: ( opt.value )? opt.value.value : null,
                     disable: ( opt.disable )? opt.disable.value : false,
-                    touchDisable: ( opt.touchDisable )? opt.touchDisable.value : false
+                    touchDisable: ( opt.touchDisable )? opt.touchDisable.value : false,
+                    euroFormat: ( opt.euroFormat )? opt.euroFormat.value : false,
+                    numberFixed: ( opt.numberFixed )? opt.numberFixed.value : 0
                 };
 
             defaultOpt.moveLength = ( opt.moveLength )? opt.moveLength.value : defaultOpt.viewLength;
             defaultOpt.easing = $B.string.camelCase( defaultOpt.easing );
             if ( defaultOpt.paging && defaultOpt.loop ) defaultOpt.paging = false;
+            if ( !defaultOpt.numberFormat ) defaultOpt.euroFormat = false;
 
             return defaultOpt;
         },
@@ -294,12 +299,12 @@
                 } else {
                     var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
                         opt = Utils.TRANSFORM + ' ' + options.duration + 'ms ' + easing + ';';
-                    autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
-                        //onTransitionEnd 이벤트가 발생하지 않을경우 대비
-                        if ( typeof callback === 'function' ) callback.call( this, {data: data} );
-                        if ( autoComplete ) clearTimeout( autoComplete );
+                        autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
+                            //onTransitionEnd 이벤트가 발생하지 않을경우 대비
+                            if ( typeof callback === 'function' ) callback.call( this, {data: data} );
+                            if ( autoComplete ) clearTimeout( autoComplete );
 
-                    }, options.duration * 2 ) : null;
+                        }, options.duration * 2 ) : null;
 
                     //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                     setTimeout( function (e) {
@@ -878,7 +883,7 @@
                 thumbHtml = $div.html();
 
             for ( var i = 0; i < thumbLength; ++i ) {
-                result += thumbHtml.replace( /<!--[-\s]*ix-index[\s-]*-->/gim, i );
+                result += thumbHtml.replace( /<!--[-\s]*ix-index[\s-]*-->/gim, i + 1 );
             }
 
             _$thumbArea.html( result );
@@ -1777,6 +1782,7 @@
 
         // =============== Public Methods =============== //
         this.initialize = function () {
+            if ( $B.ua.ANDROID ) $input.attr( 'type', 'number' );
             addEvents();
             return this;
         };
@@ -2018,7 +2024,19 @@
         }
 
         function valueToNumberFormat ( value ) {
-            if ( options.numberFormat ) value = $B.string.numberFormat( value );
+            if ( options.numberFixed ) {
+                value = Number( value ).toFixed( options.numberFixed );
+            }
+
+            if ( options.numberFormat ) {
+                value = $B.string.numberFormat( value );
+
+                if ( options.euroFormat ) {
+                    value = value.replace( /[.,]/g, function ( str ) {
+                        return ( str === ',' )? '.' : ',';
+                    });
+                }
+            }
             return value;
         }
 
@@ -2027,10 +2045,15 @@
         }
 
         function isPermissionKeyCode ( keyCode ) {
-            //숫자키, 백스페이스, Delete, Tab, Shift, enter, -, ., 화살표키
-            return ( (keyCode > 47 && keyCode < 58) || (keyCode > 95 && keyCode < 106)
-            || keyCode == 8 || keyCode == 9 || keyCode == 16 || keyCode == 46 || isEnterKey(keyCode)
-            || (keyCode == 189 || keyCode == 109) || (keyCode == 190 || keyCode == 110) || getArrowKeyType(keyCode) );
+            //android는 input의 pattern속성을 넣어서 처리해 줘야 한다.
+            if ( $B.ua.ANDROID ) {
+                return true;
+            } else {
+                //숫자키, 백스페이스, Delete, Tab, Shift, enter, -, ., 화살표키
+                return ( (keyCode > 47 && keyCode < 58) || (keyCode > 95 && keyCode < 106)
+                || keyCode == 8 || keyCode == 9 || keyCode == 16 || keyCode == 46 || isEnterKey(keyCode)
+                || (keyCode == 189 || keyCode == 109) || (keyCode == 190 || keyCode == 110) || getArrowKeyType(keyCode) );
+            }
         }
 
         function getArrowKeyType ( keyCode ) {
