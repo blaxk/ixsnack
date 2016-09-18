@@ -1,12 +1,12 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.5 - 160907
+ * @version v0.3.6 - 160918
  * Licensed under the MIT, http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
-    var _ixSnack = {VERSION: '0.3.5'},
+    var _ixSnack = {VERSION: '0.3.6'},
         _pluginId = 1,
         _pluginPool = {};
 
@@ -269,14 +269,14 @@
                     value: ( opt.value )? opt.value.value : null,
                     disable: ( opt.disable )? opt.disable.value : false,
                     touchDisable: ( opt.touchDisable )? opt.touchDisable.value : false,
-                    euroFormat: ( opt.euroFormat )? opt.euroFormat.value : false,
+                    currencyFormat: ( opt.currencyFormat )? opt.currencyFormat.value : '',
                     numberFixed: ( opt.numberFixed )? opt.numberFixed.value : 0
                 };
 
             defaultOpt.moveLength = ( opt.moveLength )? opt.moveLength.value : defaultOpt.viewLength;
             defaultOpt.easing = $B.string.camelCase( defaultOpt.easing );
             if ( defaultOpt.paging && defaultOpt.loop ) defaultOpt.paging = false;
-            if ( !defaultOpt.numberFormat ) defaultOpt.euroFormat = false;
+            if ( !defaultOpt.numberFormat ) defaultOpt.currencyFormat = '';
 
             return defaultOpt;
         },
@@ -423,6 +423,7 @@
             _$items.removeAttr( 'data-origin-idx' ).removeAttr( 'data-idx' );
             if ( _$cloneItems ) _$cloneItems.remove();
             Utils.removePlugin( _$target, 'slide-max' );
+            removeWaiAria();
         };
 
         this.resize = function () {
@@ -541,7 +542,7 @@
 
             _$items.each( function ( idx, el ) {
                 //index 속성 추가
-                $( el ).attr( 'data-idx', idx );
+                $( el ).attr( 'data-idx', idx ).attr( 'aria-hidden', true );
             });
         }
 
@@ -629,6 +630,10 @@
             return result;
         }
 
+        function removeWaiAria () {
+            _$items.removeAttr( 'aria-hidden' );
+        }
+
         function removeEvents () {
             _$target.off( 'mouseover mouseout', mouseHandler );
             _thumbController.clear();
@@ -667,6 +672,16 @@
             } else {
                 Utils.moveTo( _$ul, nextPos + 'px', _options, moveComplete, {idx: idx, isCorrect: isCorrect, isSilent: isSilent, isUnaltered: isUnaltered} );
             }
+
+            _$items.each( function ( i, el ) {
+                var $item = $( el );
+
+                if ( i >= idx && i < (idx + _options.viewLength) ) {
+                    $item.attr( 'aria-hidden', false );
+                } else {
+                    $item.attr( 'aria-hidden', true );
+                }
+            });
 
             _currentPos = nextPos;
             _selectIdx = idx;
@@ -834,6 +849,7 @@
             _$controller.removeClass( 'disabled' );
             _$prevBtn.removeClass( 'disabled' );
             _$nextBtn.removeClass( 'disabled' );
+            removeWaiAria();
         };
 
         // =============== Initialize =============== //
@@ -893,6 +909,10 @@
             });
         }
 
+        function removeWaiAria () {
+            _$thumbs.removeAttr( 'aria-selected' );
+        }
+
         function addEvents () {
             _$prevBtn.on( 'click', function (e) {
                 e.preventDefault();
@@ -915,7 +935,7 @@
 
         function selectThumb ( idx ) {
             var thumbIdx = ( options.paging )? Math.ceil( idx / options.viewLength ) : idx;
-            _$thumbs.removeClass( 'active' ).eq( thumbIdx ).addClass( 'active' );
+            _$thumbs.removeClass( 'active' ).attr( 'aria-selected', false ).eq( thumbIdx ).addClass( 'active' ).attr( 'aria-selected', true );
             _selectIdx = idx;
         }
 
@@ -1143,6 +1163,7 @@
             _$ul.stop();
             _$items.removeAttr( 'data-origin-idx' ).removeAttr( 'data-idx' );
             Utils.removePlugin( _$target, 'slide-lite' );
+            removeWaiAria();
         };
 
         this.getCurrentIndex = function () {
@@ -1204,10 +1225,14 @@
         function setItems () {
             _$items.each( function ( idx, el ) {
                 //origin-index 속성 추가
-                $( el ).attr( 'data-idx', idx );
+                $( el ).attr( 'data-idx', idx ).attr( 'aria-hidden', true );
             }).css({
                 position: 'absolute'
             });
+        }
+
+        function removeWaiAria () {
+            _$items.removeAttr( 'aria-hidden' );
         }
 
         function addEvents () {
@@ -1306,13 +1331,13 @@
                 nextIdx = getNextIdx( idx, moveType ),
                 posProp = ( _options.axis === 'horizontal' )? 'left' : 'top';
 
-            if ( prevIdx > -1 ) _$items.eq( prevIdx ).css( posProp, '0px' ).show();
-            _$items.eq( centerIdx ).css( posProp, _itemSize + 'px' ).show();
-            if ( nextIdx > -1 ) _$items.eq( nextIdx ).css( posProp, (_itemSize * 2) + 'px' ).show();
+            if ( prevIdx > -1 ) _$items.eq( prevIdx ).css( posProp, '0px' ).show().attr( 'aria-hidden', true );
+            _$items.eq( centerIdx ).css( posProp, _itemSize + 'px' ).show().attr( 'aria-hidden', false );
+            if ( nextIdx > -1 ) _$items.eq( nextIdx ).css( posProp, (_itemSize * 2) + 'px' ).show().attr( 'aria-hidden', true );
 
             _$items.filter( function ( index ) {
                 return ( prevIdx !== index && nextIdx !== index &&  centerIdx !== index );
-            }).hide();
+            }).hide().attr( 'aria-hidden', true );
 
             Utils.moveTo( _$ul, -_itemSize + 'px', _options );
 
@@ -1568,6 +1593,7 @@
             _$ul.stop();
             _$items.removeAttr( 'data-origin-idx' ).removeAttr( 'data-idx' );
             Utils.removePlugin( _$target, 'overlay-list' );
+            removeWaiAria();
         };
 
         this.getCurrentIndex = function () {
@@ -1651,6 +1677,10 @@
             }).start();
         }
 
+        function removeWaiAria () {
+            _$items.removeAttr( 'aria-hidden' );
+        }
+
         function addEvents () {
             if ( _options.autoPlay ) _$target.on( 'mouseover mouseout', mouseHandler );
 
@@ -1697,12 +1727,13 @@
             _thumbController.disable().setIndex( idx, idx );
 
             if ( motionType === 'overlay' ) {
-                var $item = _$items.eq( idx ).show();
+                _$items.attr( 'aria-hidden', true );
+                var $item = _$items.eq( idx ).show().attr( 'aria-hidden', false );
                 Utils.opacity( $item, 0, _options, null, null, true );
                 _$ul.append( $item );
                 Utils.opacity( $item, 1, _options, overlayComplete, {idx: idx, isSilent: isSilent} );
             } else {
-                _$items.eq( idx ).show().siblings().hide();
+                _$items.hide().attr( 'aria-hidden', true ).eq( idx ).show().attr( 'aria-hidden', false );
                 overlayComplete( {data: {idx: idx, isSilent: isSilent}} );
             }
         }
@@ -2031,12 +2062,33 @@
             if ( options.numberFormat ) {
                 value = $B.string.numberFormat( value );
 
-                if ( options.euroFormat ) {
+                if ( options.currencyFormat ) {
+                    value = getCurrencyFormat( value, options.currencyFormat );
+                }
+            }
+            return value;
+        }
+
+        function getCurrencyFormat ( value, country ) {
+            switch ( country ) {
+                case 'de':
+                case 'es':
+                case 'nl':
+                case 'it':
+                case 'be':
                     value = value.replace( /[.,]/g, function ( str ) {
                         return ( str === ',' )? '.' : ',';
                     });
-                }
+                    break;
+                case 'no':
+                case 'fr':
+                case 'sk':
+                    value = value.replace( /[.,]/g, function ( str ) {
+                        return ( str === ',' )? ' ' : ',';
+                    });
+                    break;
             }
+
             return value;
         }
 
