@@ -1,7 +1,7 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.6 - 160918
+ * @version v0.3.6 - 160926
  * Licensed under the MIT, http://ixsnack.com
  */
 
@@ -847,8 +847,8 @@
             _$thumbs.off( 'click', 'a.ix-btn' );
             _$thumbArea.html( _thumbHtml );
             _$controller.removeClass( 'disabled' );
-            _$prevBtn.removeClass( 'disabled' );
-            _$nextBtn.removeClass( 'disabled' );
+            _$prevBtn.removeClass( 'disabled' ).removeAttr( 'aria-disabled' );
+            _$nextBtn.removeClass( 'disabled' ).removeAttr( 'aria-disabled' );
             removeWaiAria();
         };
 
@@ -862,9 +862,10 @@
             selectThumb( 0 );
 
             if ( options.originLength <= options.viewLength ) {
-                _$prevBtn.addClass( 'disabled' );
-                _$nextBtn.addClass( 'disabled' );
+                _$prevBtn.addClass( 'disabled' ).attr( 'aria-disabled', true );
+                _$nextBtn.addClass( 'disabled' ).attr( 'aria-disabled', true );
                 _$controller.addClass( 'disabled' );
+                _$thumbs.find( '.ix-btn' ).attr( 'aria-disabled', true );
             }
         }
 
@@ -873,16 +874,16 @@
             if ( options.originLength > options.viewLength && !options.loop ) {
                 //prev
                 if ( index > 0 ) {
-                    _$prevBtn.removeClass( 'disabled' );
+                    _$prevBtn.removeClass( 'disabled' ).attr( 'aria-disabled', false );
                 } else {
-                    _$prevBtn.addClass( 'disabled' );
+                    _$prevBtn.addClass( 'disabled' ).attr( 'aria-disabled', true );
                 }
 
                 //next
                 if ( index < (options.totalLength - options.viewLength) ) {
-                    _$nextBtn.removeClass( 'disabled' );
+                    _$nextBtn.removeClass( 'disabled' ).attr( 'aria-disabled', false );
                 } else {
-                    _$nextBtn.addClass( 'disabled' );
+                    _$nextBtn.addClass( 'disabled' ).attr( 'aria-disabled', true );
                 }
             }
 
