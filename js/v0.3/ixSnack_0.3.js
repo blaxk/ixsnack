@@ -1,7 +1,7 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.6 - 160926
+ * @version v0.3.6 - 160928
  * Licensed under the MIT, http://ixsnack.com
  */
 
@@ -301,6 +301,7 @@
                         opt = Utils.TRANSFORM + ' ' + options.duration + 'ms ' + easing + ';';
                         autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
                             //onTransitionEnd 이벤트가 발생하지 않을경우 대비
+                            $B( $el ).transition( prop, 'none' );
                             if ( typeof callback === 'function' ) callback.call( this, {data: data} );
                             if ( autoComplete ) clearTimeout( autoComplete );
 
@@ -309,6 +310,8 @@
                     //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                     setTimeout( function (e) {
                         $B( $el ).transition( prop, opt, {onTransitionEnd: function (e) {
+                            $B( $el ).transition( prop, 'none' );
+
                             if ( typeof callback === 'function' ) {
                                 callback.call( $el.get(0), {data: data} );
                             }
