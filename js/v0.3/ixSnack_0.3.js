@@ -302,7 +302,6 @@
                         autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
                             //onTransitionEnd 이벤트가 발생하지 않을경우 대비
                             if ( autoComplete ) clearTimeout( autoComplete );
-                            $B( $el ).transition( prop, 'none' );
                             if ( typeof callback === 'function' ) callback.call( this, {data: data} );
                         }, options.duration * 2 ) : null;
 
@@ -310,8 +309,6 @@
                     setTimeout( function (e) {
                         $B( $el ).transition( prop, opt, {onTransitionEnd: function (e) {
                             if ( autoComplete ) clearTimeout( autoComplete );
-                            $B( $el ).transition( prop, 'none' );
-
                             if ( typeof callback === 'function' ) callback.call( $el.get(0), {data: data} );
                         }}, data );
                     }, 1);
