@@ -1,7 +1,7 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.6 - 160928
+ * @version v0.3.6 - 160929
  * Licensed under the MIT, http://ixsnack.com
  */
 
@@ -298,25 +298,21 @@
                     if ( typeof callback === 'function' ) callback.call( this, {data: data} );
                 } else {
                     var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
-                        opt = Utils.TRANSFORM + ' ' + options.duration + 'ms ' + easing + ';';
+                        opt = Utils.TRANSFORM + ' ' + options.duration + 'ms ' + easing + ';',
                         autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
                             //onTransitionEnd 이벤트가 발생하지 않을경우 대비
+                            if ( autoComplete ) clearTimeout( autoComplete );
                             $B( $el ).transition( prop, 'none' );
                             if ( typeof callback === 'function' ) callback.call( this, {data: data} );
-                            if ( autoComplete ) clearTimeout( autoComplete );
-
                         }, options.duration * 2 ) : null;
 
                     //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                     setTimeout( function (e) {
                         $B( $el ).transition( prop, opt, {onTransitionEnd: function (e) {
+                            if ( autoComplete ) clearTimeout( autoComplete );
                             $B( $el ).transition( prop, 'none' );
 
-                            if ( typeof callback === 'function' ) {
-                                callback.call( $el.get(0), {data: data} );
-                            }
-
-                            if ( autoComplete ) clearTimeout( autoComplete );
+                            if ( typeof callback === 'function' ) callback.call( $el.get(0), {data: data} );
                         }}, data );
                     }, 1);
                 }
