@@ -1958,7 +1958,7 @@
                     if ( isPermissionKeyCode(e.which) ) {
                         if ( isEnterKey(e.which) ) {
                             var value = _value;
-                            setInputValue( false, false, true );
+                            setInputValue( false, true, true );
                             if ( value != _value ) _this.value( _value, false, true );
                         }
                     } else {
@@ -1971,9 +1971,7 @@
                 case 'focusout':
                     var value = _value;
                     setInputValue( false, true, true );
-                    if ( value != _value ) {
-                        _this.value( _value, false, true );
-                    }
+                    if ( value != _value ) _this.value( _value, false, true );
                     break;
             }
         }
@@ -2046,7 +2044,7 @@
 
             if ( !isValue ) {
                 value = $input.val();
-                if ( !isNumber( value ) ) value = _value;
+                if ( !isNumber(value) ) value = _value;
             }
 
             var rangeValue = valueToGapValue( value ),
@@ -2138,7 +2136,8 @@
         }
 
         function isNumber ( value ) {
-            return ( typeof Number(value) === 'number' );
+            var num = Number( value );
+            return ( typeof num === 'number' && !isNaN(num) );
         }
 
         function isPermissionKeyCode ( keyCode ) {
