@@ -1,12 +1,12 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.6 - 160929
+ * @version v0.3.7 - 161215
  * Licensed under the MIT, http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
-    var _ixSnack = {VERSION: '0.3.6'},
+    var _ixSnack = {VERSION: '0.3.7'},
         _pluginId = 1,
         _pluginPool = {};
 
@@ -388,6 +388,7 @@
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
+            if ( _disabled ) return;
             _isTimerBlock = false;
             playTimer();
         };
@@ -402,12 +403,12 @@
         };
 
         this.next = function ( rangeLength, isInput ) {
-            if ( _disabled ) return;
+            if ( _disabled || _thumbController.block() ) return;
             _listIndexManager.next( rangeLength, isInput );
         };
 
         this.prev = function ( rangeLength, isInput ) {
-            if ( _disabled ) return;
+            if ( _disabled || _thumbController.block() ) return;
             _listIndexManager.prev( rangeLength, isInput );
         };
 
@@ -435,6 +436,18 @@
 
         this.getTotalLength = function () {
             return _originLength;
+        };
+
+        this.enable = function () {
+            if ( _swipe ) _swipe.enable();
+            _thumbController.enable();
+            _disabled = false;
+        };
+
+        this.disable = function () {
+            if ( _swipe ) _swipe.disable();
+            _thumbController.disable();
+            _disabled = true;
         };
 
         // =============== Initialize =============== //
@@ -556,30 +569,34 @@
         }
 
         function addEvents () {
-            if ( _options.autoPlay ) _$target.on( 'mouseover mouseout', mouseHandler );
-
             if ( !_options.touchDisable && $B.ua.TOUCH_DEVICE && _totalLength > _options.viewLength ) {
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
-                        if ( _disabled ) return;
+                        if ( _thumbController.block() ) return;
                         pauseTimer();
                         dispatch( 'touchStart' );
                     },
                     onMove: function (e) {
-                        if ( _disabled ) return;
+                        if ( _thumbController.block() ) return;
                         if ( _options.motionType === 'slide' ) touchMove( e );
                     },
                     onSwipe: function (e) {
-                        if ( _disabled ) return;
-                        playTimer();
+                        if ( _thumbController.block() ) return;
                         dispatch( 'touchEnd' );
 
                         //이동값이 변동이 없으면 transitionend 이벤트가 발생하지 않기 때문
-                        if ( (_options.axis === 'horizontal'? e.moveX : e.moveY) === 0 ) return;
+                        if ( (_options.axis === 'horizontal'? e.moveX : e.moveY) === 0 ) {
+                            playTimer();
+                            return;
+                        }
+
                         swipe( e.swipe );
                     }
                 }).sensitivity( SWIPE_SENSITIVITY );
             }
+
+            //TODO: windows edge touch-device 에서 mouseover 처리 문제
+            if ( _options.autoPlay && (!$B.ua.TOUCH_DEVICE || $B.ua.EDGE) ) _$target.on( 'mouseover mouseout', mouseHandler );
         }
 
         function touchMove (e) {
@@ -608,7 +625,7 @@
             var result = false, total = 0;
 
             if ( !_options.loop ) {
-                if ( _options.paging ) {
+                if ( _options.paging && _options.viewLength > 1 ) {
                     total = indexToPosition( _options.viewLength * Math.floor(_totalLength / _options.viewLength) );
                 } else if ( _options.correctEndpoint ) {
                     total = -( _totalLength * _itemSize - _viewportSize );
@@ -659,9 +676,8 @@
             var nextPos = getCorrectEndpoint( indexToPosition(idx), idx ),
                 isUnaltered = _oldOriginIdx === _originIdx;
 
-            _disabled = true;
             pauseTimer();
-            _thumbController.disable().setIndex( _originIdx, idx );
+            _thumbController.block( true ).setIndex( _originIdx, idx );
 
             if ( motionType === 'slide' ) {
                 Utils.move( _$ul, nextPos + 'px', _options, moveComplete, {idx: idx, isCorrect: isCorrect, isSilent: isSilent, isUnaltered: isUnaltered} );
@@ -689,9 +705,8 @@
                 _listIndexManager.correct( e.data.idx );
             }
 
-            _thumbController.enable();
+            _thumbController.block( false );
             playTimer();
-            _disabled = false;
 
             if ( !e.data.isSilent && !e.data.isCorrect ) {
                 if ( !e.data.isUnaltered ) dispatch( 'change' );
@@ -702,16 +717,13 @@
         function setAutoPlay () {
             if ( !_options.autoPlay || !_totalLength ) return;
 
-            _timer = new $B.utils.Timer( _options.delay, _totalLength, {
+            _timer = new $B.utils.Timer( _options.delay, 0, {
                 onTimer: function (e) {
                     if ( _options.opposite ) {
                         _this.prev();
                     } else {
                         _this.next();
                     }
-                },
-                onComplete: function (e) {
-                    playTimer();
                 }
             }).start();
         }
@@ -816,7 +828,7 @@
             _$thumbs;
 
         var _thumbHtml = '',
-            _isDisabled = false,
+            _isDisabled = false, _isBlock = false,
             _selectIdx = 0;
 
         // =============== Public Methods =============== //
@@ -834,6 +846,15 @@
         this.disable = function () {
             _isDisabled = true;
             return this;
+        };
+
+        this.block = function ( state ) {
+            if ( typeof state === 'boolean' ) {
+                _isBlock = state;
+                return this;
+            } else {
+                return _isBlock;
+            }
         };
 
         //등록된 이벤트와 설정 삭제
@@ -913,19 +934,19 @@
         function addEvents () {
             _$prevBtn.on( 'click', function (e) {
                 e.preventDefault();
-                if ( $(this).hasClass('disabled') || _isDisabled ) return;
+                if ( $(this).hasClass('disabled') || _isDisabled || _isBlock ) return;
                 dispatch( 'prev' );
             });
 
             _$nextBtn.on( 'click', function (e) {
                 e.preventDefault();
-                if ( $(this).hasClass('disabled') || _isDisabled ) return;
+                if ( $(this).hasClass('disabled') || _isDisabled || _isBlock ) return;
                 dispatch( 'next' );
             });
 
             _$thumbs.on( 'click', 'a.ix-btn', function (e) {
                 e.preventDefault();
-                if ( _isDisabled ) return;
+                if ( _isDisabled || _isBlock ) return;
                 dispatch( 'index', $(e.currentTarget).closest('.ix-thumb' ).attr('data-idx') );
             });
         }
@@ -1114,6 +1135,7 @@
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
+            if ( _disabled ) return;
             _isTimerBlock = false;
             playTimer();
         };
@@ -1134,12 +1156,12 @@
         };
 
         this.next = function ( selectIdx, isSwipe ) {
-            if ( _disabled || !_totalLength ) return;
+            if ( _disabled || _thumbController.block() || !_totalLength ) return;
             selectMove( _selectIdx + 1, selectIdx, 'next', isSwipe );
         };
 
         this.prev = function ( selectIdx, isSwipe ) {
-            if ( _disabled || !_totalLength ) return;
+            if ( _disabled || _thumbController.block() || !_totalLength ) return;
             selectMove( _selectIdx - 1, selectIdx, 'prev', isSwipe );
         };
 
@@ -1169,6 +1191,18 @@
 
         this.getTotalLength = function () {
             return _totalLength;
+        };
+
+        this.enable = function () {
+            if ( _swipe ) _swipe.enable();
+            _thumbController.enable();
+            _disabled = false;
+        };
+
+        this.disable = function () {
+            if ( _swipe ) _swipe.disable();
+            _thumbController.disable();
+            _disabled = true;
         };
 
         // =============== Initialize =============== //
@@ -1233,32 +1267,34 @@
         }
 
         function addEvents () {
-            if ( _options.autoPlay ) _$target.on( 'mouseover mouseout', mouseHandler );
-
             if ( !_options.touchDisable && $B.ua.TOUCH_DEVICE && _totalLength > 1 ) {
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
-                        if ( _disabled ) return;
+                        if ( _thumbController.block() ) return;
                         pauseTimer();
                         dispatch( 'touchStart' );
                     },
                     onMove: function (e) {
-                        if ( _disabled ) return;
+                        if ( _thumbController.block() ) return;
                         if ( _options.motionType === 'slide' ) touchMove( e );
                     },
                     onSwipe: function (e) {
-                        if ( _disabled ) return;
-                        playTimer();
+                        if ( _thumbController.block() ) return;
                         dispatch( 'touchEnd' );
 
                         //이동값이 변동이 없으면 transitionend 이벤트가 발생하지 않기 때문
-                        if ( (_options.axis === 'horizontal'? e.moveX : e.moveY) === 0 ) return;
+                        if ( (_options.axis === 'horizontal'? e.moveX : e.moveY) === 0 ) {
+                            playTimer();
+                            return;
+                        }
+
                         swipe( e.swipe );
                     }
                 }).sensitivity( SWIPE_SENSITIVITY );
             }
 
-            $( window ).on( 'resize', _this.resize );
+            //TODO: windows edge touch-device 에서 mouseover 처리 문제
+            if ( _options.autoPlay && (!$B.ua.TOUCH_DEVICE || $B.ua.EDGE) ) _$target.on( 'mouseover mouseout', mouseHandler );
         }
 
         function touchMove (e) {
@@ -1350,9 +1386,8 @@
 
             var nextPos = -_itemSize;
 
-            _disabled = true;
             pauseTimer();
-            _thumbController.disable().setIndex( idx, idx );
+            _thumbController.block( true ).setIndex( idx, idx );
 
             if ( moveType === 'next' ) {
                 nextPos = -( _itemSize * 2 );
@@ -1372,9 +1407,8 @@
         function moveComplete (e) {
             var oldIdx = _selectIdx;
 
-            _thumbController.enable();
+            _thumbController.block( false );
             playTimer();
-            _disabled = false;
             _selectIdx = e.data.idx;
 
             arrangeItems( _selectIdx );
@@ -1497,7 +1531,6 @@
             _$target.off( 'mouseover mouseout', mouseHandler );
             _thumbController.clear();
             if ( _swipe ) _swipe.clear();
-            $( window ).off( 'resize', _this.resize );
         }
 
         function mouseHandler (e) {
@@ -1544,6 +1577,7 @@
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
+            if ( _disabled ) return;
             _isTimerBlock = false;
             playTimer();
         };
@@ -1564,7 +1598,7 @@
         };
 
         this.next = function ( selectIdx ) {
-            if ( _disabled || !_totalLength ) return;
+            if ( _disabled || _thumbController.block() || !_totalLength ) return;
             var idx = correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : _selectIdx + 1 );
 
             if ( _selectIdx != idx ) {
@@ -1574,7 +1608,7 @@
         };
 
         this.prev = function ( selectIdx ) {
-            if ( _disabled || !_totalLength ) return;
+            if ( _disabled || _thumbController.block() || !_totalLength ) return;
             var idx = correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : _selectIdx - 1 );
 
             if ( _selectIdx != idx ) {
@@ -1599,6 +1633,18 @@
 
         this.getTotalLength = function () {
             return _totalLength;
+        };
+
+        this.enable = function () {
+            if ( _swipe ) _swipe.enable();
+            _thumbController.enable();
+            _disabled = false;
+        };
+
+        this.disable = function () {
+            if ( _swipe ) _swipe.disable();
+            _thumbController.disable();
+            _disabled = true;
         };
 
         // =============== Initialize =============== //
@@ -1679,23 +1725,23 @@
         }
 
         function addEvents () {
-            if ( _options.autoPlay ) _$target.on( 'mouseover mouseout', mouseHandler );
-
             if ( !_options.touchDisable && $B.ua.TOUCH_DEVICE && _totalLength > 1 ) {
                 _swipe = new $B.mobile.Swipe( _$viewport.get(0), _options.axis, {
                     onAxis: function (e) {
-                        if ( _disabled ) return;
+                        if ( _thumbController.block() ) return;
                         pauseTimer();
                         dispatch( 'touchStart' );
                     },
                     onSwipe: function (e) {
-                        if ( _disabled ) return;
-                        playTimer();
+                        if ( _thumbController.block() ) return;
                         dispatch( 'touchEnd' );
                         swipe( e.swipe );
                     }
                 }).sensitivity( SWIPE_SENSITIVITY );
             }
+
+            //TODO: windows edge touch-device 에서 mouseover 처리 문제
+            if ( _options.autoPlay && (!$B.ua.TOUCH_DEVICE || $B.ua.EDGE) ) _$target.on( 'mouseover mouseout', mouseHandler );
         }
 
         function swipe ( type ) {
@@ -1703,6 +1749,8 @@
                 _this.next();
             } else if ( type === 'right' || type === 'down' ) {
                 _this.prev();
+            } else {
+                playTimer();
             }
         }
 
@@ -1719,9 +1767,8 @@
 
         //아이템 이동
         function overlayItem ( idx, motionType, isSilent ) {
-            _disabled = true;
             pauseTimer();
-            _thumbController.disable().setIndex( idx, idx );
+            _thumbController.block( true ).setIndex( idx, idx );
 
             if ( motionType === 'overlay' ) {
                 _$items.attr( 'aria-hidden', true );
@@ -1738,9 +1785,8 @@
         function overlayComplete (e) {
             var oldIdx = _selectIdx;
 
-            _thumbController.enable();
+            _thumbController.block( false );
             playTimer();
-            _disabled = false;
             _selectIdx = e.data.idx;
 
             if ( !e.data.isSilent ) {
@@ -1810,7 +1856,6 @@
 
         // =============== Public Methods =============== //
         this.initialize = function () {
-            if ( $B.ua.ANDROID ) $input.attr( 'type', 'number' );
             addEvents();
             return this;
         };
@@ -1846,13 +1891,15 @@
 
         this.value = function ( val, isAni, isUserInput ) {
             if ( typeof val === 'number' ) {
+                var isViewStr = ( typeof isUserInput === 'boolean'? isUserInput : true );
+
                 if ( (options.correctEndpoint && isAni) || options.snap ) {
-                    _value = valueToGapValue( correctValue(val) );
+                    _value = valueToGapValue( val );
                 } else {
                     _value = correctMoveValue( val );
                 }
 
-                setInputValue( true, ( isUserInput? false : true ), false );
+                setInputValue( true, isViewStr, false );
                 move( valueToPercent(_value), isAni, isUserInput );
                 return this;
             } else {
@@ -1926,7 +1973,6 @@
                     setInputValue( false, true, true );
                     if ( value != _value ) {
                         _this.value( _value, false, true );
-                        setInputValue( false, true, false );
                     }
                     break;
             }
@@ -1940,10 +1986,8 @@
 
             if ( arrowKeyType === 'forward' ) {
                 _this.value( _value + options.gap, false, true );
-                setInputValue( false, true, false );
             } else if ( arrowKeyType === 'backward' ) {
                 _this.value( _value - options.gap, false, true );
-                setInputValue( false, true, false );
             }
         }
 
@@ -2009,7 +2053,6 @@
                 viewString = rangeValue;
 
             if ( isViewStr ) {
-                viewString = correctValue( viewString );
                 viewString = options.addFirstStr + valueToNumberFormat( viewString ) + options.addLastStr;
             }
 
@@ -2026,21 +2069,25 @@
                 prevValue = result - options.gap,
                 rest = 0;
 
-            if ( (nextValue > options.max) && (result < value) ) {
-                rest = _max - result;
+            if ( options.gap ) {
+                if ( (nextValue > options.max) && (result < value) ) {
+                    rest = _max - result;
 
-                if ( rest ) {
-                    result += Math.round( (value - result) / rest ) * rest;
-                }
-            } else if ( (prevValue < options.min) && (result > value) ) {
-                rest = _min - result;
+                    if ( rest ) {
+                        result += Math.round( (value - result) / rest ) * rest;
+                    }
+                } else if ( (prevValue < options.min) && (result > value) ) {
+                    rest = _min - result;
 
-                if ( rest ) {
-                    result += Math.round( (value - result) / rest ) * rest;
+                    if ( rest ) {
+                        result += Math.round( (value - result) / rest ) * rest;
+                    }
                 }
+            } else {
+                result = value;
             }
 
-            return result;
+            return correctValue( result );
         }
 
         function percentToValue ( per ) {
@@ -2080,6 +2127,7 @@
                 case 'no':
                 case 'fr':
                 case 'sk':
+                case 'pl':
                     value = value.replace( /[.,]/g, function ( str ) {
                         return ( str === ',' )? ' ' : ',';
                     });
