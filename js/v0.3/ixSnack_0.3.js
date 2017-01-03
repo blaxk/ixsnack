@@ -1,7 +1,7 @@
 /**
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
- * @version v0.3.7 - 161215
+ * @version v0.3.7 - 170103
  * Licensed under the MIT, http://ixsnack.com
  */
 
@@ -175,7 +175,7 @@
             for ( var key in obj ) {
                 var value = obj[key];
 
-                if ( value || typeof value === 'number' ) {
+                if ( value || typeof value === 'boolean' || typeof value === 'number' ) {
                     var reKey = $B.string.hyphenCase( key ),
                         reg = new RegExp( reKey + '\\s*?:\\s*?([\\w\\-.,\\s\\/?&:=\\(\\)%]+);?', 'gi' );
 
@@ -384,6 +384,7 @@
             _timer, _swipe, _listIndexManager, _thumbController;
 
         var _originLength, _totalLength, _itemSize, _viewportSize,
+            _directionType = 'none',
             _selectIdx = 0, _originIdx = -1, _oldOriginIdx = -1,  _currentPos = 0, _disabled = false, _endpoint = false, _isTimerBlock = false;
 
         // =============== Public Methods =============== //
@@ -404,15 +405,18 @@
 
         this.next = function ( rangeLength, isInput ) {
             if ( _disabled || _thumbController.block() ) return;
+            _directionType = 'next';
             _listIndexManager.next( rangeLength, isInput );
         };
 
         this.prev = function ( rangeLength, isInput ) {
             if ( _disabled || _thumbController.block() ) return;
+            _directionType = 'prev';
             _listIndexManager.prev( rangeLength, isInput );
         };
 
         this.clear = function () {
+            _directionType = 'none';
             pauseTimer();
             removeEvents();
             removeSize();
@@ -711,6 +715,7 @@
             if ( !e.data.isSilent && !e.data.isCorrect ) {
                 if ( !e.data.isUnaltered ) dispatch( 'change' );
                 dispatch( 'slideEnd' );
+                _directionType = 'none';
             }
         }
 
@@ -811,7 +816,7 @@
 
         function dispatch ( type ) {
             var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? _endpoint : undefined;
-            _$target.triggerHandler( {type: 'ixSlideMax:' + type, currentIndex: _originIdx, totalLength: _originLength, endpoint: endpoint} );
+            _$target.triggerHandler( {type: 'ixSlideMax:' + type, currentIndex: _originIdx, totalLength: _originLength, endpoint: endpoint, direction: _directionType} );
         }
     };
 
@@ -1131,7 +1136,7 @@
 
         var _totalLength, _itemSize,
             _selectIdx = 0, _disabled = false, _isTimerBlock = false,
-            _centerIdx, _prevIdx, _nextIdx, _currentPos = 0;
+            _centerIdx, _prevIdx, _nextIdx, _currentPos = 0, _directionType = 'none';
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
@@ -1157,11 +1162,13 @@
 
         this.next = function ( selectIdx, isSwipe ) {
             if ( _disabled || _thumbController.block() || !_totalLength ) return;
+            _directionType = 'next';
             selectMove( _selectIdx + 1, selectIdx, 'next', isSwipe );
         };
 
         this.prev = function ( selectIdx, isSwipe ) {
             if ( _disabled || _thumbController.block() || !_totalLength ) return;
+            _directionType = 'prev';
             selectMove( _selectIdx - 1, selectIdx, 'prev', isSwipe );
         };
 
@@ -1176,6 +1183,7 @@
         };
 
         this.clear = function () {
+            _directionType = 'none';
             pauseTimer();
             removeEvents();
             removeStyle();
@@ -1416,6 +1424,7 @@
             if ( !e.data.isSilent ) {
                 if ( oldIdx !== _selectIdx ) dispatch( 'change' );
                 dispatch( 'slideEnd' );
+                _directionType = 'none';
             }
         }
 
@@ -1554,7 +1563,7 @@
                 currentIndex = _selectIdx;
 
             if ( !_totalLength ) currentIndex = NaN;
-            _$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: currentIndex, totalLength: _totalLength, endpoint: endpoint} );
+            _$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: currentIndex, totalLength: _totalLength, endpoint: endpoint, direction: _directionType} );
         }
     };
 
@@ -1573,7 +1582,7 @@
         var _options = Utils.getOptions( _$target.attr('data-ix-options') ),
             _timer, _swipe, _thumbController;
 
-        var _totalLength, _selectIdx = 0, _disabled = false, _isTimerBlock = false;
+        var _totalLength, _selectIdx = 0, _disabled = false, _isTimerBlock = false, _directionType = 'none';
 
         // =============== Public Methods =============== //
         this.startTimer = function () {
@@ -1602,6 +1611,7 @@
             var idx = correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : _selectIdx + 1 );
 
             if ( _selectIdx != idx ) {
+                _directionType = 'next';
                 dispatch( 'slideStart' );
                 overlayItem( idx, _options.motionType );
             }
@@ -1612,12 +1622,14 @@
             var idx = correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : _selectIdx - 1 );
 
             if ( _selectIdx != idx ) {
+                _directionType = 'prev';
                 dispatch( 'slideStart' );
                 overlayItem( idx, _options.motionType );
             }
         };
 
         this.clear = function () {
+            _directionType = 'none';
             pauseTimer();
             removeEvents();
             removeStyle();
@@ -1792,6 +1804,7 @@
             if ( !e.data.isSilent ) {
                 if ( oldIdx !== _selectIdx ) dispatch( 'change' );
                 dispatch( 'slideEnd' );
+                _directionType = 'none';
             }
         }
 
@@ -1839,7 +1852,7 @@
                 currentIndex = _selectIdx;
 
             if ( !_totalLength ) currentIndex = NaN;
-            _$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: _totalLength, endpoint: endpoint} );
+            _$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: _totalLength, endpoint: endpoint, direction: _directionType} );
         }
     };
 
