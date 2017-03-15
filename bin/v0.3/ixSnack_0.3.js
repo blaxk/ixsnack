@@ -2,7 +2,7 @@
  * ixSnack.js - Javascript UI Library
  * jQuery v1.8~ (http://jquery.com) + ixBand v0.8.1~ (http://ixband.com)
  * @version v0.3.7 - 170103
- * Licensed under the MIT, http://ixsnack.com
+ * The MIT License (MIT), http://ixsnack.com
  */
 
 ;(function ( $, $B ) {
