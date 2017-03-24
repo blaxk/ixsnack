@@ -14,6 +14,7 @@ ixSnack.OverlayList = $B.Class.extend({
         this._disabled = false;
         this._isTimerBlock = false;
         this._directionType = 'none';
+        this._currentPos = 0;
 
         this._getItems();
         this._setItems();
@@ -21,11 +22,15 @@ ixSnack.OverlayList = $B.Class.extend({
         this._setAutoPlay();
         this._setEvents();
 
+        this._options.motionType = this._options.motionType || 'overlay';
         this._options.originLength = this._totalLength;
         this._options.totalLength = this._totalLength;
         if ( this._options.defaultIndex >= this._totalLength || this._options.defaultIndex < 0 ) this._options.defaultIndex = 0;
-        if ( this._options.motionType === 'slide' ) this._options.motionType = 'overlay';
         if ( !this._options.duration ) this._options.duration = 400;
+        if ( this._options.motionType === 'slide' && this._totalLength < 3 ) this._options.loop = false;
+
+        this._motion = this._getMotion()
+            .addListener( 'motionEnd', $B.bind(this._motionHandler, this) );
 
         this._thumbController = new ixSnack.ThumbController( this._$target, this._options )
             .setIndex( this._options.defaultIndex, this._options.defaultIndex )
@@ -33,7 +38,6 @@ ixSnack.OverlayList = $B.Class.extend({
             .addListener( 'prev', $B.bind(this._thumbHandler, this) )
             .addListener( 'index', $B.bind(this._thumbHandler, this) );
 
-        this._overlayItem( this._options.defaultIndex, 'none', true );
         this._dispatch( 'init' );
     },
 
@@ -54,31 +58,35 @@ ixSnack.OverlayList = $B.Class.extend({
         if ( idx > this._totalLength || idx < 0 || !this._totalLength ) return;
 
         if ( this._selectIdx < idx ) {
-            this.next( idx );
+            this.next( idx, 'changeIndex' );
         } else if ( this._selectIdx > idx ) {
-            this.prev( idx );
+            this.prev( idx, 'changeIndex' );
         }
     },
 
-    next: function ( selectIdx ) {
+    next: function ( selectIdx, state ) {
         if ( this._disabled || this._thumbController.block() || !this._totalLength ) return;
-        var idx = this._correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : this._selectIdx + 1 );
+        var idx = this._motion.correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : this._selectIdx + 1 );
 
         if ( this._selectIdx != idx ) {
             this._directionType = 'next';
             this._dispatch( 'slideStart' );
-            this._overlayItem( idx, this._options.motionType );
+            this._pauseTimer();
+            this._thumbController.block( true ).setIndex( idx, idx );
+            this._motion.next( idx, state === 'changeIndex' );
         }
     },
 
-    prev: function ( selectIdx ) {
+    prev: function ( selectIdx, state ) {
         if ( this._disabled || this._thumbController.block() || !this._totalLength ) return;
-        var idx = this._correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : this._selectIdx - 1 );
+        var idx = this._motion.correctSelectIdx( (typeof selectIdx === 'number')? selectIdx : this._selectIdx - 1 );
 
         if ( this._selectIdx != idx ) {
             this._directionType = 'prev';
             this._dispatch( 'slideStart' );
-            this._overlayItem( idx, this._options.motionType );
+            this._pauseTimer();
+            this._thumbController.block( true ).setIndex( idx, idx );
+            this._motion.prev( idx, state === 'changeIndex' );
         }
     },
 
@@ -87,7 +95,6 @@ ixSnack.OverlayList = $B.Class.extend({
         this._pauseTimer();
         this._removeEvents();
         this._removeStyle();
-        this._$ul.stop();
         this._$items.removeAttr( 'data-origin-idx' ).removeAttr( 'data-idx' );
         ixSnack.removePlugin( this._$target, 'overlay-list' );
         this._removeWaiAria();
@@ -115,6 +122,20 @@ ixSnack.OverlayList = $B.Class.extend({
 
     // =============== Private Methods =============== //
 
+    _motionHandler: function (e) {
+        var oldIdx = this._selectIdx;
+
+        this._thumbController.block( false );
+        this._playTimer();
+        this._selectIdx = e.idx;
+
+        if ( !e.isSilent ) {
+            if ( oldIdx !== this._selectIdx ) this._dispatch( 'change' );
+            this._dispatch( 'slideEnd' );
+            this._directionType = 'none';
+        }
+    },
+
     _thumbHandler: function (e) {
         switch ( e.type ) {
             case 'next':
@@ -127,6 +148,20 @@ ixSnack.OverlayList = $B.Class.extend({
                 this.changeIndex( e.index );
                 break;
         }
+    },
+
+    _getMotion: function () {
+        var motion;
+
+        if ( this._options.motionType === 'overlay' ) {
+            motion = new ixSnack.OverlayList.OverlayMotion( this._$target, this._$ul, this._$items, this._options );
+        } else if ( this._options.motionType === 'slide' ) {
+            motion = new ixSnack.OverlayList.SlideMotion( this._$target, this._$ul, this._$items, this._options );
+        } else {
+            motion = new ixSnack.OverlayList.Motion( this._$target, this._$ul, this._$items, this._options );
+        }
+
+        return motion;
     },
 
     _getItems: function () {
@@ -172,8 +207,8 @@ ixSnack.OverlayList = $B.Class.extend({
                     this._dispatch( 'touchStart' );
                 }, this))
                 .addListener( 'move', $B.bind(function (e) {
-                    //if ( this._thumbController.block() ) return;
-                    //if ( this._options.motionType === 'slide' ) this._touchMove( e );
+                    if ( this._thumbController.block() ) return;
+                    if ( this._options.motionType === 'slide' ) this._motion.move( e );
                     //TODO: touchMove 이벤트 전달
                 }, this))
                 .addListener( 'swipe', $B.bind(function (e) {
@@ -209,58 +244,13 @@ ixSnack.OverlayList = $B.Class.extend({
         } else if ( type === 'right' || type === 'down' ) {
             this.prev();
         } else {
+            this._motion.none();
             this._playTimer();
         }
     },
 
-    //최소 최대 index값 보정
-    _correctSelectIdx: function ( idx ) {
-        if ( idx > this._totalLength - 1 ) {
-            idx = this._options.loop ? 0 : this._totalLength - 1;
-        } else if ( idx < 0 ) {
-            idx = this._options.loop ? this._totalLength - 1 : 0;
-        }
-
-        return idx;
-    },
-
     _removeWaiAria: function () {
         this._$items.removeAttr( 'aria-hidden' );
-    },
-
-    //아이템 이동
-    _overlayItem: function ( idx, motionType, isSilent ) {
-        this._pauseTimer();
-        this._thumbController.block( true ).setIndex( idx, idx );
-
-        if ( motionType === 'overlay' ) {
-            this._$items.attr( 'aria-hidden', true );
-            var $item = this._$items.eq( idx ).show().attr( 'aria-hidden', false );
-            ixSnack.opacity( $item, 0, this._options, null, null, true );
-            this._$ul.append( $item );
-            ixSnack.opacity( $item, 1, this._options, $B.bind(this._overlayComplete, this), {idx: idx, isSilent: isSilent} );
-        } else {
-            this._$items.hide().attr( 'aria-hidden', true ).eq( idx ).show().attr( 'aria-hidden', false );
-            this._overlayComplete( {data: {idx: idx, isSilent: isSilent}} );
-        }
-    },
-
-    _overlayComplete: function (e) {
-        var oldIdx = this._selectIdx;
-
-        this._thumbController.block( false );
-        this._playTimer();
-        this._selectIdx = e.data.idx;
-
-        if ( !e.data.isSilent ) {
-            if ( oldIdx !== this._selectIdx ) this._dispatch( 'change' );
-            this._dispatch( 'slideEnd' );
-            this._directionType = 'none';
-        }
-    },
-
-    _isEndpoint: function () {
-        return ( !this._options.loop && this._selectIdx === this._totalLength - 1 );
     },
 
     _setSize: function () {
@@ -280,6 +270,7 @@ ixSnack.OverlayList = $B.Class.extend({
         this._$target.off( 'mouseover mouseout', this._mouseHandler );
         this._thumbController.clear();
         if ( this._swipe ) this._swipe.clear();
+        if ( this._motion ) this._motion.clear();
     },
 
     _playTimer: function () {
@@ -291,7 +282,7 @@ ixSnack.OverlayList = $B.Class.extend({
     },
 
     _dispatch: function ( type ) {
-        var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? this._isEndpoint() : undefined,
+        var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? this._motion.isEndpoint() : undefined,
             currentIndex = this._selectIdx;
 
         if ( !this._totalLength ) currentIndex = NaN;

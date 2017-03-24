@@ -27,6 +27,9 @@ module.exports = function ( grunt ) {
                     'src/SlideMax.js',
                     'src/SlideLite.js',
                     'src/OverlayList.js',
+                    'src/OverlayList.Motion.js',
+                    'src/OverlayList.OverlayMotion.js',
+                    'src/OverlayList.SlideMotion.js',
                     'src/BaseSlider.js',
                     'src/Slider.js',
                     'src/RangeSlider.js'

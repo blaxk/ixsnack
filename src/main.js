@@ -157,7 +157,7 @@ window.ixSnack = {
                 delay: ( opt.delay )? opt.delay.value : 4000,
                 blockClickEvent: ( opt.blockClickEvent )? opt.blockClickEvent.value : false,
                 viewLength: ( opt.viewLength )? opt.viewLength.value : 1,
-                motionType: ( opt.motionType )? opt.motionType.value : 'slide',
+                motionType: ( opt.motionType )? opt.motionType.value : '',
                 viewportRatio: ( opt.viewportRatio )? opt.viewportRatio : null,
                 easing: ( opt.easing )? opt.easing.value : 'ease',
                 itemSize: ( opt.itemSize )? opt.itemSize : null,
@@ -195,6 +195,8 @@ window.ixSnack = {
 
     //animation 이동
     move: function ( $el, pos, options, callback, data, notAni ) {
+        if ( !$el.length ) return;
+
         var prop = '';
 
         if ( ixSnack.TRANSFORM ) {
@@ -246,6 +248,8 @@ window.ixSnack = {
     },
 
     opacity: function ( $el, value, options, callback, data, notAni ) {
+        if ( !$el.length ) return;
+
         if ( ixSnack.TRANSFORM ) {
             if ( notAni ) {
                 $B( $el ).transition( 'opacity:' + value, 'none' );

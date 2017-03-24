@@ -92,16 +92,18 @@ ixSnack.BaseSlider = $B.Class.extend({
 
     value: function ( val, isAni, isUserInput ) {
         if ( typeof val === 'number' ) {
-            var isViewStr = ( typeof isUserInput === 'boolean'? isUserInput : true );
+            if ( !isNaN(val) ) {
+                var isViewStr = ( typeof isUserInput === 'boolean'? isUserInput : true );
 
-            if ( (this._options.correctEndpoint && isAni) || this._options.snap ) {
-                this._value = this._valueToGapValue( val );
-            } else {
-                this._value = this._correctMoveValue( val );
+                if ( (this._options.correctEndpoint && isAni) || this._options.snap ) {
+                    this._value = this._valueToGapValue( val );
+                } else {
+                    this._value = this._correctMoveValue( val );
+                }
+
+                this._setInputValue( true, isViewStr, false );
+                this._move( this._valueToPercent(this._value), isAni, isUserInput );
             }
-
-            this._setInputValue( true, isViewStr, false );
-            this._move( this._valueToPercent(this._value), isAni, isUserInput );
             return this;
         } else {
             return this._valueToGapValue( this._value );

@@ -22,6 +22,7 @@ ixSnack.SlideLite = $B.Class.extend({
         this._setAutoPlay();
         this._setEvents();
 
+        this._options.motionType = this._options.motionType || 'slide';
         this._options.originLength = this._totalLength;
         this._options.totalLength = this._totalLength;
         if ( this._totalLength < 3 ) this._options.loop = false;
@@ -354,7 +355,7 @@ ixSnack.SlideLite = $B.Class.extend({
             marginProps = ['marginTop', 'marginBottom'];
         }
 
-        ulStyle[sizeProp] = ( this._itemSize * this._totalLength + 100 ) + 'px';
+        ulStyle[sizeProp] = ( this._itemSize * 3 + 100 ) + 'px';
         itemStyle[sizeProp] = ( this._itemSize - itemMarginTotal )   + 'px';
         itemStyle[marginProps[0]] = itemMargins[0] + 'px';
         itemStyle[marginProps[1]] = itemMargins[1] + 'px';

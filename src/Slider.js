@@ -129,6 +129,8 @@ ixSnack.Slider = $B.Class.extend({
     _touchHandler: function (e) {
         if ( this._disabled ) return;
 
+        var currentPer = 0;
+
         if ( e.type != 'axis' ) {
             e.preventDefault();
             e.stopPropagation();
@@ -141,7 +143,7 @@ ixSnack.Slider = $B.Class.extend({
                 this._docTouchEvent.addListener( 'touchend', this._onTouch );
                 this._docTouchEvent.addListener( 'touchcancel', this._onTouch );
 
-                var currentPer = this._pxToPercent( this._getEventPos(e) );
+                currentPer = this._pxToPercent( this._getEventPos(e) );
                 this._isMouseDown = true;
 
                 this._dispatch( 'slideStart', true );
@@ -152,7 +154,7 @@ ixSnack.Slider = $B.Class.extend({
                 this._isMouseUp = true;
                 this._docTouchEvent.removeListener();
 
-                var currentPer = ( this._options.axis === 'horizontal' )? this._currentPer : 100 - this._currentPer;
+                currentPer = ( this._options.axis === 'horizontal' )? this._currentPer : 100 - this._currentPer;
                 this._slider.percent( currentPer, true );
                 break;
             case 'touchmove':

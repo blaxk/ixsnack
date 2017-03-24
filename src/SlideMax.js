@@ -25,6 +25,7 @@ ixSnack.SlideMax = $B.Class.extend({
         this._setAutoPlay();
         this._setEvents();
 
+        this._options.motionType = this._options.motionType || 'slide';
         this._options.originLength = this._originLength;
         this._options.totalLength = this._totalLength;
 
