@@ -48,7 +48,8 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         this._touchMove( e );
     },
 
-    percent: function () {
+    //@override
+    displacement: function () {
         return this._currentPos / this._itemSize;
     },
 

@@ -306,6 +306,6 @@ ixSnack.OverlayList = $B.Class.extend({
             currentIndex = this._selectIdx;
 
         if ( !this._totalLength ) currentIndex = NaN;
-        this._$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType, percent: this._motion.percent()} );
+        this._$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType, displacement: this._motion.displacement()} );
     }
 }, 'ixSnack.OverlayList');

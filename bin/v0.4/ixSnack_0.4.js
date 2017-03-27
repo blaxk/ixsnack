@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.0 (1703271528)
+ * @version v0.4.0 (1703271612)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -1898,7 +1898,7 @@ ixSnack.OverlayList = $B.Class.extend({
                 currentIndex = this._selectIdx;
     
             if ( !this._totalLength ) currentIndex = NaN;
-            this._$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType, percent: this._motion.percent()} );
+            this._$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType, displacement: this._motion.displacement()} );
         }
     }, 'ixSnack.OverlayList');
 
@@ -1920,7 +1920,7 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
     
         resize: function () {},
     
-        percent: function () {
+        displacement: function () {
             return 0;
         },
     
@@ -2059,7 +2059,8 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             this._touchMove( e );
         },
     
-        percent: function () {
+        //@override
+        displacement: function () {
             return this._currentPos / this._itemSize;
         },
     

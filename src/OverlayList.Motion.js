@@ -23,7 +23,7 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
 
     resize: function () {},
 
-    percent: function () {
+    displacement: function () {
         return 0;
     },
 
