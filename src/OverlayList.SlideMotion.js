@@ -17,6 +17,7 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         this._totalLength = this._$items.length;
         this._selectIdx = this._options.defaultIndex;
 
+        this._currentPos = 0;
         this._setSize();
         this._arrangeItems( this._selectIdx );
         this._setWaiArea( this._selectIdx );
@@ -47,12 +48,15 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         this._touchMove( e );
     },
 
-    value: function () {
-        return this._currentPos;
-    },
-
     percent: function () {
         return this._currentPos / this._itemSize;
+    },
+
+    //@override
+    resize: function () {
+        this._setSize();
+        this._arrangeItems( this._selectIdx );
+        //this._setWaiArea( this._selectIdx );
     },
 
     // =============== Private Methods =============== //
@@ -62,7 +66,7 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         idx = this.correctSelectIdx( idx );
 
         var nextPos = 0,
-            callbackData = {idx: idx, isSilent: false},
+            callbackData = {idx: idx, isSilent: false, moveType: moveType},
             callback = $B.bind( this._overlayComplete, this ),
             nextCallback, prevCallback;
 
@@ -71,6 +75,8 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             nextCallback = callback;
         } else if ( moveType === 'prev' ) {
             nextPos = this._itemSize;
+            prevCallback = callback;
+        } else {
             prevCallback = callback;
         }
 
@@ -81,8 +87,9 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
 
     //@override
     _overlayComplete: function (e) {
-        this._arrangeItems( e.data.idx );
+        if ( e.data.moveType !== 'none' ) this._arrangeItems( e.data.idx );
         ixSnack.OverlayList.Motion.prototype._overlayComplete.call( this, e );
+        this._currentPos = 0;
     },
 
     _touchMove: function (e) {
@@ -101,6 +108,8 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             ixSnack.moveTo( this._$prev, pos + 'px', this._options );
             this._currentPos = pos;
         }
+
+        this.dispatch( 'motionMove' );
     },
 
     _isOverPosition: function ( grow ) {
@@ -151,7 +160,6 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
 
         this._$ul.css( posProp, -this._itemSize + 'px' );
 
-        this._currentPos = 0;
         this._centerIdx = centerIdx;
         this._prevIdx = prevIdx;
         this._nextIdx = nextIdx;

@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.0 (1703241905)
+ * @version v0.4.0 (1703271528)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -1622,7 +1622,11 @@ ixSnack.OverlayList = $B.Class.extend({
             if ( this._options.motionType === 'slide' && this._totalLength < 3 ) this._options.loop = false;
     
             this._motion = this._getMotion()
+                .addListener( 'motionMove', $B.bind(function (e) {
+                    this._dispatch( 'touchMove' );
+                }, this))
                 .addListener( 'motionEnd', $B.bind(this._motionHandler, this) );
+    
     
             this._thumbController = new ixSnack.ThumbController( this._$target, this._options )
                 .setIndex( this._options.defaultIndex, this._options.defaultIndex )
@@ -1712,6 +1716,15 @@ ixSnack.OverlayList = $B.Class.extend({
             this._disabled = true;
         },
     
+        resize: function () {
+            if ( !this._totalLength ) return;
+    
+            this._pauseTimer();
+            this._removeSize();
+            this._motion.resize();
+            this._playTimer();
+        },
+    
         // =============== Private Methods =============== //
     
         _motionHandler: function (e) {
@@ -1754,6 +1767,13 @@ ixSnack.OverlayList = $B.Class.extend({
             }
     
             return motion;
+        },
+    
+        _removeSize: function (  ) {
+            var sizeProp = ( this._options.axis === 'horizontal' ) ? 'width' : 'height';
+            this._$viewport.attr( 'style', '' );
+            this._$ul.css( sizeProp, '' );
+            this._$items.css( sizeProp, '' ).css( 'margin', '' );
         },
     
         _getItems: function () {
@@ -1800,8 +1820,7 @@ ixSnack.OverlayList = $B.Class.extend({
                     }, this))
                     .addListener( 'move', $B.bind(function (e) {
                         if ( this._thumbController.block() ) return;
-                        if ( this._options.motionType === 'slide' ) this._motion.move( e );
-                        //TODO: touchMove 이벤트 전달
+                        this._motion.move( e );
                     }, this))
                     .addListener( 'swipe', $B.bind(function (e) {
                         if ( this._thumbController.block() ) return;
@@ -1836,6 +1855,7 @@ ixSnack.OverlayList = $B.Class.extend({
             } else if ( type === 'right' || type === 'down' ) {
                 this.prev();
             } else {
+                this._dispatch( 'slideStart' );
                 this._motion.none();
                 this._playTimer();
             }
@@ -1878,7 +1898,7 @@ ixSnack.OverlayList = $B.Class.extend({
                 currentIndex = this._selectIdx;
     
             if ( !this._totalLength ) currentIndex = NaN;
-            this._$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType} );
+            this._$target.triggerHandler( {type: 'ixOverlayList:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType, percent: this._motion.percent()} );
         }
     }, 'ixSnack.OverlayList');
 
@@ -1898,18 +1918,26 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
     
         // =============== Public Methods =============== //
     
+        resize: function () {},
+    
+        percent: function () {
+            return 0;
+        },
+    
+        none: function () {
+            this.dispatch( 'motionEnd', {idx: this._selectIdx, isSilent: false} );
+        },
+    
+        move: function ( e ) {
+            this.dispatch( 'motionMove' );
+        },
+    
         next: function ( selectIdx ) {
             this._overlayItem( selectIdx );
         },
     
         prev: function ( selectIdx ) {
             this._overlayItem( selectIdx );
-        },
-    
-        none: function () {},
-    
-        move: function ( e ) {
-            //this.dispatch( 'motionMove', {percent: 0} );
         },
     
         isEndpoint: function () {
@@ -2000,6 +2028,7 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             this._totalLength = this._$items.length;
             this._selectIdx = this._options.defaultIndex;
     
+            this._currentPos = 0;
             this._setSize();
             this._arrangeItems( this._selectIdx );
             this._setWaiArea( this._selectIdx );
@@ -2030,12 +2059,15 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             this._touchMove( e );
         },
     
-        value: function () {
-            return this._currentPos;
-        },
-    
         percent: function () {
             return this._currentPos / this._itemSize;
+        },
+    
+        //@override
+        resize: function () {
+            this._setSize();
+            this._arrangeItems( this._selectIdx );
+            //this._setWaiArea( this._selectIdx );
         },
     
         // =============== Private Methods =============== //
@@ -2045,7 +2077,7 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             idx = this.correctSelectIdx( idx );
     
             var nextPos = 0,
-                callbackData = {idx: idx, isSilent: false},
+                callbackData = {idx: idx, isSilent: false, moveType: moveType},
                 callback = $B.bind( this._overlayComplete, this ),
                 nextCallback, prevCallback;
     
@@ -2054,6 +2086,8 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
                 nextCallback = callback;
             } else if ( moveType === 'prev' ) {
                 nextPos = this._itemSize;
+                prevCallback = callback;
+            } else {
                 prevCallback = callback;
             }
     
@@ -2064,8 +2098,9 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
     
         //@override
         _overlayComplete: function (e) {
-            this._arrangeItems( e.data.idx );
+            if ( e.data.moveType !== 'none' ) this._arrangeItems( e.data.idx );
             ixSnack.OverlayList.Motion.prototype._overlayComplete.call( this, e );
+            this._currentPos = 0;
         },
     
         _touchMove: function (e) {
@@ -2084,6 +2119,8 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
                 ixSnack.moveTo( this._$prev, pos + 'px', this._options );
                 this._currentPos = pos;
             }
+    
+            this.dispatch( 'motionMove' );
         },
     
         _isOverPosition: function ( grow ) {
@@ -2134,7 +2171,6 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
     
             this._$ul.css( posProp, -this._itemSize + 'px' );
     
-            this._currentPos = 0;
             this._centerIdx = centerIdx;
             this._prevIdx = prevIdx;
             this._nextIdx = nextIdx;

@@ -21,18 +21,26 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
 
     // =============== Public Methods =============== //
 
+    resize: function () {},
+
+    percent: function () {
+        return 0;
+    },
+
+    none: function () {
+        this.dispatch( 'motionEnd', {idx: this._selectIdx, isSilent: false} );
+    },
+
+    move: function ( e ) {
+        this.dispatch( 'motionMove' );
+    },
+
     next: function ( selectIdx ) {
         this._overlayItem( selectIdx );
     },
 
     prev: function ( selectIdx ) {
         this._overlayItem( selectIdx );
-    },
-
-    none: function () {},
-
-    move: function ( e ) {
-        //this.dispatch( 'motionMove', {percent: 0} );
     },
 
     isEndpoint: function () {
