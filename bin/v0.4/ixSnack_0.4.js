@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.0 (1703271612)
+ * @version v0.4.1 (1703291645)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -29,7 +29,7 @@
      * Plugin에서 사용하는 공통기능
      */
     window.ixSnack = {
-        VERSION: '0.4.0',
+        VERSION: '0.4.1',
         MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
         TRANSFORM: (function () {
             if ( !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
@@ -554,7 +554,7 @@ ixSnack.ThumbController = $B.Class.extend({
                 this._$thumbs.find( '.ix-btn' ).attr( 'aria-disabled', true );
             }
     
-            this._isInit = false;
+            this._isInit = true;
         },
     
         // =============== Public Methods =============== //

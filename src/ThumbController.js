@@ -31,7 +31,7 @@ ixSnack.ThumbController = $B.Class.extend({
             this._$thumbs.find( '.ix-btn' ).attr( 'aria-disabled', true );
         }
 
-        this._isInit = false;
+        this._isInit = true;
     },
 
     // =============== Public Methods =============== //
