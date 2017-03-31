@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.1 (1703312042)
+ * @version v0.4.1 (1703312134)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -2277,7 +2277,6 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
             this._positionProp = ( this._options.axis === 'horizontal' )? 'right' : 'bottom';
     
             this._setSize();
-            this._setDefaultStyle();
             this._arrangeItems( this._selectIdx );
             this._setWaiArea( this._selectIdx );
         },
@@ -2327,7 +2326,6 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
         clear: function () {
             ixSnack.OverlayList.Motion.prototype.clear.call( this );
             this._$items.children().css({
-                position: '',
                 right: '',
                 bottom: '',
                 width: '',
@@ -2543,14 +2541,6 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
     
             itemStyle[sizeProp] = this._getChildrenSize() + 'px';
             this._$items.children().css( itemStyle );
-        },
-    
-        _setDefaultStyle: function () {
-            this._$items.css({
-                overflow: 'hidden'
-            }).children().css({
-                position: 'absolute'
-            });
         }
     }, 'ixSnack.OverlayList.MaskMotion');
 
