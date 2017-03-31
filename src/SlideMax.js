@@ -3,7 +3,7 @@
  * @param   {jQueryObject}    $target
  * @constructor
  */
-ixSnack.SlideMax = $B.Class.extend({
+ixSnack.SlideMax = ixSnack.BaseClass.extend({
     initialize: function ( $target ) {
         this._$target = $target;
         this._$viewport = this._$target.find( '> .ix-list-viewport' );
@@ -94,26 +94,6 @@ ixSnack.SlideMax = $B.Class.extend({
         this._removeSize();
         this._setSize();
         this._moveItems( this._selectIdx, 'none', true, true );
-    },
-
-    getCurrentIndex: function () {
-        return this._originIdx;
-    },
-
-    getTotalLength: function () {
-        return this._originLength;
-    },
-
-    enable: function () {
-        if ( this._swipe ) this._swipe.enable();
-        this._thumbController.enable();
-        this._disabled = false;
-    },
-
-    disable: function () {
-        if ( this._swipe ) this._swipe.disable();
-        this._thumbController.disable();
-        this._disabled = true;
     },
 
     // =============== Private Methods =============== //

@@ -3,7 +3,7 @@
  * @param   {jQueryObject}    $target
  * @constructor
  */
-ixSnack.SlideLite = $B.Class.extend({
+ixSnack.SlideLite = ixSnack.BaseClass.extend({
     initialize: function ( $target ) {
         this._$target = $target;
         this._$viewport = this._$target.find( '> .ix-list-viewport' );
@@ -96,26 +96,6 @@ ixSnack.SlideLite = $B.Class.extend({
         this._removeWaiAria();
     },
 
-    getCurrentIndex: function () {
-        return this._selectIdx;
-    },
-
-    getTotalLength: function () {
-        return this._totalLength;
-    },
-
-    enable: function () {
-        if ( this._swipe ) this._swipe.enable();
-        this._thumbController.enable();
-        this._disabled = false;
-    },
-
-    disable: function () {
-        if ( this._swipe ) this._swipe.disable();
-        this._thumbController.disable();
-        this._disabled = true;
-    },
-
     // =============== Private Methods =============== //
 
     _thumbHandler: function (e) {
@@ -185,6 +165,8 @@ ixSnack.SlideLite = $B.Class.extend({
             ixSnack.moveTo( this._$ul, pos + 'px', this._options );
             this._currentPos = pos;
         }
+
+        this._dispatch( 'touchMove' );
     },
 
     _targetSwipe: function ( type ) {
@@ -438,12 +420,35 @@ ixSnack.SlideLite = $B.Class.extend({
         if ( this._timer ) this._timer.stop();
     },
 
+    _displacement: function ( type ) {
+        var val = 0;
+
+        if ( type === 'change' || type === 'slideEnd' ) {
+            if ( this._directionType === 'next' ) {
+                val = -1;
+            } else if ( this._directionType === 'prev' ) {
+                val = 1;
+            }
+        } else {
+            val = 1 + ( this._currentPos / this._itemSize );
+
+            if ( val < -1 ) {
+                val = -1;
+            } else if ( val > 1 ) {
+                val = 1;
+            }
+        }
+
+        return val;
+    },
+
     _dispatch: function ( type ) {
         var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? this._isEndpoint() : undefined,
-            currentIndex = this._selectIdx;
+            currentIndex = this._selectIdx,
+            displacement = this._displacement( type );
 
         if ( !this._totalLength ) currentIndex = NaN;
-        this._$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType} );
+        this._$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType, displacement: displacement} );
     }
 
 }, 'ixSnack.SlideLite');

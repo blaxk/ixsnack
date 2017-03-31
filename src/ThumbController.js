@@ -30,8 +30,6 @@ ixSnack.ThumbController = $B.Class.extend({
             this._$controller.addClass( 'disabled' );
             this._$thumbs.find( '.ix-btn' ).attr( 'aria-disabled', true );
         }
-
-        this._isInit = true;
     },
 
     // =============== Public Methods =============== //
@@ -63,8 +61,6 @@ ixSnack.ThumbController = $B.Class.extend({
 
     //등록된 이벤트와 설정 삭제
     clear: function () {
-        if ( !this._isInit ) return;
-
         this._$prevBtn.off( 'click', this._directionHandler );
         this._$nextBtn.off( 'click', this._directionHandler );
         this._$thumbs.off( 'click', 'a.ix-btn', this._thumbHandler );

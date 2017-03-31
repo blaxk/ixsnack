@@ -3,7 +3,7 @@
  * @param   {jQueryObject}    $target
  * @constructor
  */
-ixSnack.OverlayList = $B.Class.extend({
+ixSnack.OverlayList = ixSnack.BaseClass.extend({
     initialize: function ( $target ) {
         this._$target = $target;
         this._$viewport = this._$target.find( '> .ix-list-viewport' );
@@ -104,26 +104,6 @@ ixSnack.OverlayList = $B.Class.extend({
         this._removeWaiAria();
     },
 
-    getCurrentIndex: function () {
-        return this._selectIdx;
-    },
-
-    getTotalLength: function () {
-        return this._totalLength;
-    },
-
-    enable: function () {
-        if ( this._swipe ) this._swipe.enable();
-        this._thumbController.enable();
-        this._disabled = false;
-    },
-
-    disable: function () {
-        if ( this._swipe ) this._swipe.disable();
-        this._thumbController.disable();
-        this._disabled = true;
-    },
-
     resize: function () {
         if ( !this._totalLength ) return;
 
@@ -166,12 +146,19 @@ ixSnack.OverlayList = $B.Class.extend({
     _getMotion: function () {
         var motion;
 
-        if ( this._options.motionType === 'overlay' ) {
-            motion = new ixSnack.OverlayList.OverlayMotion( this._$target, this._$ul, this._$items, this._options );
-        } else if ( this._options.motionType === 'slide' ) {
-            motion = new ixSnack.OverlayList.SlideMotion( this._$target, this._$ul, this._$items, this._options );
-        } else {
-            motion = new ixSnack.OverlayList.Motion( this._$target, this._$ul, this._$items, this._options );
+        switch ( this._options.motionType ) {
+            case 'overlay':
+                motion = new ixSnack.OverlayList.OverlayMotion( this._$target, this._$ul, this._$items, this._options );
+                break;
+            case 'slide':
+                motion = new ixSnack.OverlayList.SlideMotion( this._$target, this._$ul, this._$items, this._options );
+                break;
+            case 'mask':
+                motion = new ixSnack.OverlayList.MaskMotion( this._$target, this._$ul, this._$items, this._options );
+                break;
+            default :
+                motion = new ixSnack.OverlayList.Motion( this._$target, this._$ul, this._$items, this._options );
+                break;
         }
 
         return motion;
@@ -194,9 +181,13 @@ ixSnack.OverlayList = $B.Class.extend({
         this._$items.each( function ( idx, el ) {
             //origin-index 속성 추가
             $( el ).attr( 'data-idx', idx );
-        }).css({
-            position: 'absolute'
         });
+
+        if ( this._options.motionType !== 'mask' ) {
+            this._$items.css({
+                position: 'absolute'
+            });
+        }
     },
 
     _setAutoPlay: function () {
@@ -227,8 +218,9 @@ ixSnack.OverlayList = $B.Class.extend({
                     this._dispatch( 'touchStart' );
                 }, this))
                 .addListener( 'move', $B.bind(function (e) {
-                    if ( this._thumbController.block() ) return;
-                    this._motion.move( e );
+                    if ( !this._thumbController.block() && !this._motion.isEndpoint() && !this._motion.isFirstpoint() ) {
+                        this._motion.move( e );
+                    }
                 }, this))
                 .addListener( 'swipe', $B.bind(function (e) {
                     if ( this._thumbController.block() ) return;

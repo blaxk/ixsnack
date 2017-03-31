@@ -3,7 +3,7 @@
  * @param   {jQueryObject}    $target
  * @constructor
  */
-ixSnack.Slider = $B.Class.extend({
+ixSnack.Slider = ixSnack.BaseClass.extend({
     initialize: function ( $target ) {
         this._$target = $target;
         this._$input = this._$target.find( '.ix-input' );

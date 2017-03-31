@@ -57,7 +57,6 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
     resize: function () {
         this._setSize();
         this._arrangeItems( this._selectIdx );
-        //this._setWaiArea( this._selectIdx );
     },
 
     // =============== Private Methods =============== //
@@ -128,15 +127,6 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         return result;
     },
 
-    _getItemSize: function () {
-        if ( this._options.itemSize ) {
-            return this._options.itemSize.value;
-        } else {
-            var type = ( this._options.axis === 'horizontal' )? 'width' : 'height';
-            return $B( this._$items.get(this._selectIdx) ).rect()[type];
-        }
-    },
-
     _arrangeItems: function ( idx, moveType ) {
         var centerIdx = this._getCenterIdx( idx, moveType ),
             prevIdx = this._getPrevIdx( idx, moveType ),
@@ -183,6 +173,7 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         return moveType ? this._selectIdx : idx;
     },
 
+    //한칸씩 이동하는 index인지
     _isGradualIndex: function ( idx ) {
         return ( Math.abs(idx - this._selectIdx) === 1 );
     },
@@ -212,20 +203,5 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
 
         this._$items.css( itemStyle );
         this._$ul.css( ulStyle );
-    },
-
-    _getItemMargins: function () {
-        var result = [];
-
-        if ( this._options.itemMargin ) {
-            result = [this._options.itemMargin[0].value, this._options.itemMargin[1].value];
-        } else {
-            var margins = this._$items.css( this._options.axis === 'horizontal' ? ['marginLeft', 'marginRight'] : ['marginTop', 'marginBottom'] );
-            $.each( margins, function ( key, value ) {
-                result.push( parseFloat(value) );
-            });
-        }
-
-        return result;
     }
 }, 'ixSnack.OverlayList.SlideMotion');

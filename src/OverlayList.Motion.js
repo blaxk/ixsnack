@@ -47,6 +47,10 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
         return ( !this._options.loop && this._selectIdx === this._totalLength - 1 );
     },
 
+    isFirstpoint: function () {
+        return ( !this._options.loop && this._selectIdx === 0 );
+    },
+
     //최소 최대 index값 보정
     correctSelectIdx: function ( idx ) {
         if ( idx > this._totalLength - 1 ) {
@@ -68,9 +72,9 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
     _overlayItem: function ( idx, isSilent, isAni ) {
         if ( isAni ) {
             var $item = this._$items.eq( idx ).show();
-            ixSnack.opacity( $item, 0, this._options, null, null, true );
+            ixSnack.animate( $item, 'opacity', 0, this._options, null, null, true );
             this._$ul.append( $item );
-            ixSnack.opacity( $item, 1, this._options, $B.bind(this._overlayComplete, this), {idx: idx, isSilent: isSilent} );
+            ixSnack.animate( $item, 'opacity', 1, this._options, $B.bind(this._overlayComplete, this), {idx: idx, isSilent: isSilent} );
         } else {
             this._$items.hide().eq( idx ).show();
             this._overlayComplete( {data: {idx: idx, isSilent: isSilent}} );
@@ -81,6 +85,30 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
         this._setWaiArea( e.data.idx );
         this._selectIdx = e.data.idx;
         this.dispatch( 'motionEnd', {idx: e.data.idx, isSilent: e.data.isSilent} );
+    },
+
+    _getItemSize: function () {
+        if ( this._options.itemSize ) {
+            return this._options.itemSize.value;
+        } else {
+            var type = ( this._options.axis === 'horizontal' )? 'width' : 'height';
+            return $B( this._$items.get(this._selectIdx) ).rect()[type];
+        }
+    },
+
+    _getItemMargins: function () {
+        var result = [];
+
+        if ( this._options.itemMargin ) {
+            result = [this._options.itemMargin[0].value, this._options.itemMargin[1].value];
+        } else {
+            var margins = this._$items.css( this._options.axis === 'horizontal' ? ['marginLeft', 'marginRight'] : ['marginTop', 'marginBottom'] );
+            $.each( margins, function ( key, value ) {
+                result.push( parseFloat(value) );
+            });
+        }
+
+        return result;
     },
     
     _setWaiArea: function ( idx ) {

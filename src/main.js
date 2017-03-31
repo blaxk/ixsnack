@@ -224,7 +224,7 @@ window.ixSnack = {
                     $B( $el ).transition( prop, opt, {onTransitionEnd: function (e) {
                         if ( autoComplete ) clearTimeout( autoComplete );
                         if ( typeof callback === 'function' ) callback( {data: data} );
-                    }}, data );
+                    }});
                 }, 1);
             }
         } else {
@@ -247,15 +247,21 @@ window.ixSnack = {
         this.move( $el, pos, options, callback, data, true );
     },
 
-    opacity: function ( $el, value, options, callback, data, notAni ) {
+    size: function ( $el, value, options, callback, data, notAni ) {
+        var prop = ( options.axis === 'horizontal' )? 'width' : 'height';
+        this.animate( $el, prop, value, options, callback, data, notAni );
+    },
+
+    animate: function ( $el, prop, value, options, callback, data, notAni ) {
         if ( !$el.length ) return;
 
         if ( ixSnack.TRANSFORM ) {
             if ( notAni ) {
-                $B( $el ).transition( 'opacity:' + value, 'none' );
+                $B( $el ).transition( prop + ':' + value, 'none' );
                 if ( typeof callback === 'function' ) callback( {data: data} );
             } else {
-                var autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
+                var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
+                    autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
                     //onTransitionEnd 이벤트가 발생하지 않을경우 대비
                     if ( typeof callback === 'function' ) callback( {data: data} );
                     if ( autoComplete ) clearTimeout( autoComplete );
@@ -263,20 +269,22 @@ window.ixSnack = {
 
                 //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                 setTimeout( function (e) {
-                    $B( $el ).transition( 'opacity:' + value, 'opacity ' + options.duration + 'ms ease;', function (e) {
-                        if ( typeof callback === 'function' && autoComplete ) {
-                            clearTimeout( autoComplete );
-                            callback( {data: data} );
-                        }
-                    }, data );
-                }, 10);
+                    $B( $el ).transition( prop + ':' + value, prop + ' ' + options.duration + 'ms ' + easing + ';', function (e) {
+                        if ( autoComplete ) clearTimeout( autoComplete );
+                        if ( typeof callback === 'function' ) callback( {data: data} );
+                    });
+                }, 1);
             }
         } else {
+            var aniStyle = {};
+            aniStyle[prop] = value;
+
             if ( notAni ) {
-                $el.stop().css( {opacity: value} );
+                $el.stop().css( aniStyle );
                 if ( typeof callback === 'function' ) callback( {data: data} );
             } else {
-                $el.stop().animate( {opacity: value}, options.duration, 'swing', function () {
+                var easing = ( options.easing === 'ease' ) ? 'swing' : options.easing;
+                $el.stop().animate( aniStyle, options.duration, easing, function () {
                     if ( typeof callback === 'function' ) callback( {data: data} );
                 });
             }

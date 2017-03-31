@@ -3,7 +3,7 @@
  * @param   {jQueryObject}    $target
  * @constructor
  */
-ixSnack.RangeSlider = $B.Class.extend({
+ixSnack.RangeSlider = ixSnack.BaseClass.extend({
     initialize: function ( $target ) {
         this._$target = $target;
         this._$minInput = this._$target.find( '.ix-min-input' );

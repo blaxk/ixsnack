@@ -22,6 +22,7 @@ module.exports = function ( grunt ) {
                 src: [
                     'src/main.js',
                     'src/plugin.js',
+                    'src/BaseClass.js',
                     'src/ListIndexManager.js',
                     'src/ThumbController.js',
                     'src/SlideMax.js',
@@ -30,6 +31,7 @@ module.exports = function ( grunt ) {
                     'src/OverlayList.Motion.js',
                     'src/OverlayList.OverlayMotion.js',
                     'src/OverlayList.SlideMotion.js',
+                    'src/OverlayList.MaskMotion.js',
                     'src/BaseSlider.js',
                     'src/Slider.js',
                     'src/RangeSlider.js'

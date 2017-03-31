@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.1 (1703291645)
+ * @version v0.4.1 (1703312042)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -233,7 +233,7 @@
                         $B( $el ).transition( prop, opt, {onTransitionEnd: function (e) {
                             if ( autoComplete ) clearTimeout( autoComplete );
                             if ( typeof callback === 'function' ) callback( {data: data} );
-                        }}, data );
+                        }});
                     }, 1);
                 }
             } else {
@@ -256,15 +256,21 @@
             this.move( $el, pos, options, callback, data, true );
         },
     
-        opacity: function ( $el, value, options, callback, data, notAni ) {
+        size: function ( $el, value, options, callback, data, notAni ) {
+            var prop = ( options.axis === 'horizontal' )? 'width' : 'height';
+            this.animate( $el, prop, value, options, callback, data, notAni );
+        },
+    
+        animate: function ( $el, prop, value, options, callback, data, notAni ) {
             if ( !$el.length ) return;
     
             if ( ixSnack.TRANSFORM ) {
                 if ( notAni ) {
-                    $B( $el ).transition( 'opacity:' + value, 'none' );
+                    $B( $el ).transition( prop + ':' + value, 'none' );
                     if ( typeof callback === 'function' ) callback( {data: data} );
                 } else {
-                    var autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
+                    var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
+                        autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
                         //onTransitionEnd 이벤트가 발생하지 않을경우 대비
                         if ( typeof callback === 'function' ) callback( {data: data} );
                         if ( autoComplete ) clearTimeout( autoComplete );
@@ -272,20 +278,22 @@
     
                     //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                     setTimeout( function (e) {
-                        $B( $el ).transition( 'opacity:' + value, 'opacity ' + options.duration + 'ms ease;', function (e) {
-                            if ( typeof callback === 'function' && autoComplete ) {
-                                clearTimeout( autoComplete );
-                                callback( {data: data} );
-                            }
-                        }, data );
-                    }, 10);
+                        $B( $el ).transition( prop + ':' + value, prop + ' ' + options.duration + 'ms ' + easing + ';', function (e) {
+                            if ( autoComplete ) clearTimeout( autoComplete );
+                            if ( typeof callback === 'function' ) callback( {data: data} );
+                        });
+                    }, 1);
                 }
             } else {
+                var aniStyle = {};
+                aniStyle[prop] = value;
+    
                 if ( notAni ) {
-                    $el.stop().css( {opacity: value} );
+                    $el.stop().css( aniStyle );
                     if ( typeof callback === 'function' ) callback( {data: data} );
                 } else {
-                    $el.stop().animate( {opacity: value}, options.duration, 'swing', function () {
+                    var easing = ( options.easing === 'ease' ) ? 'swing' : options.easing;
+                    $el.stop().animate( aniStyle, options.duration, easing, function () {
                         if ( typeof callback === 'function' ) callback( {data: data} );
                     });
                 }
@@ -383,6 +391,42 @@
             });
         }
     });
+
+
+ixSnack.BaseClass = $B.Class.extend({
+        // =============== Public Methods =============== //
+        getCurrentIndex: function () {
+            return this._selectIdx;
+        },
+    
+        getTotalLength: function () {
+            return this._totalLength;
+        },
+    
+        getComputedOption: function ( prop ) {
+            if ( $B.isString(prop) ) {
+                prop = $B.string.camelCase( prop );
+    
+                if ( this._options.hasOwnProperty(prop) ) {
+                    return this._options[prop];
+                }
+            } else {
+                return $B.object.clone( this._options );
+            }
+        },
+    
+        enable: function () {
+            if ( this._swipe ) this._swipe.enable();
+            if ( this._thumbController ) this._thumbController.enable();
+            this._disabled = false;
+        },
+    
+        disable: function () {
+            if ( this._swipe ) this._swipe.disable();
+            if ( this._thumbController ) this._thumbController.disable();
+            this._disabled = true;
+        }
+    }, 'ixSnack.BaseClass');
 
 
 ixSnack.ListIndexManager = $B.Class.extend({
@@ -553,8 +597,6 @@ ixSnack.ThumbController = $B.Class.extend({
                 this._$controller.addClass( 'disabled' );
                 this._$thumbs.find( '.ix-btn' ).attr( 'aria-disabled', true );
             }
-    
-            this._isInit = true;
         },
     
         // =============== Public Methods =============== //
@@ -586,8 +628,6 @@ ixSnack.ThumbController = $B.Class.extend({
     
         //등록된 이벤트와 설정 삭제
         clear: function () {
-            if ( !this._isInit ) return;
-    
             this._$prevBtn.off( 'click', this._directionHandler );
             this._$nextBtn.off( 'click', this._directionHandler );
             this._$thumbs.off( 'click', 'a.ix-btn', this._thumbHandler );
@@ -699,7 +739,7 @@ ixSnack.ThumbController = $B.Class.extend({
     }, 'ixSnack.ThumbController');
 
 
-ixSnack.SlideMax = $B.Class.extend({
+ixSnack.SlideMax = ixSnack.BaseClass.extend({
         initialize: function ( $target ) {
             this._$target = $target;
             this._$viewport = this._$target.find( '> .ix-list-viewport' );
@@ -790,26 +830,6 @@ ixSnack.SlideMax = $B.Class.extend({
             this._removeSize();
             this._setSize();
             this._moveItems( this._selectIdx, 'none', true, true );
-        },
-    
-        getCurrentIndex: function () {
-            return this._originIdx;
-        },
-    
-        getTotalLength: function () {
-            return this._originLength;
-        },
-    
-        enable: function () {
-            if ( this._swipe ) this._swipe.enable();
-            this._thumbController.enable();
-            this._disabled = false;
-        },
-    
-        disable: function () {
-            if ( this._swipe ) this._swipe.disable();
-            this._thumbController.disable();
-            this._disabled = true;
         },
     
         // =============== Private Methods =============== //
@@ -1149,7 +1169,7 @@ ixSnack.SlideMax = $B.Class.extend({
     }, 'ixSnack.SlideMax');
 
 
-ixSnack.SlideLite = $B.Class.extend({
+ixSnack.SlideLite = ixSnack.BaseClass.extend({
         initialize: function ( $target ) {
             this._$target = $target;
             this._$viewport = this._$target.find( '> .ix-list-viewport' );
@@ -1242,26 +1262,6 @@ ixSnack.SlideLite = $B.Class.extend({
             this._removeWaiAria();
         },
     
-        getCurrentIndex: function () {
-            return this._selectIdx;
-        },
-    
-        getTotalLength: function () {
-            return this._totalLength;
-        },
-    
-        enable: function () {
-            if ( this._swipe ) this._swipe.enable();
-            this._thumbController.enable();
-            this._disabled = false;
-        },
-    
-        disable: function () {
-            if ( this._swipe ) this._swipe.disable();
-            this._thumbController.disable();
-            this._disabled = true;
-        },
-    
         // =============== Private Methods =============== //
     
         _thumbHandler: function (e) {
@@ -1331,6 +1331,8 @@ ixSnack.SlideLite = $B.Class.extend({
                 ixSnack.moveTo( this._$ul, pos + 'px', this._options );
                 this._currentPos = pos;
             }
+    
+            this._dispatch( 'touchMove' );
         },
     
         _targetSwipe: function ( type ) {
@@ -1584,18 +1586,41 @@ ixSnack.SlideLite = $B.Class.extend({
             if ( this._timer ) this._timer.stop();
         },
     
+        _displacement: function ( type ) {
+            var val = 0;
+    
+            if ( type === 'change' || type === 'slideEnd' ) {
+                if ( this._directionType === 'next' ) {
+                    val = -1;
+                } else if ( this._directionType === 'prev' ) {
+                    val = 1;
+                }
+            } else {
+                val = 1 + ( this._currentPos / this._itemSize );
+    
+                if ( val < -1 ) {
+                    val = -1;
+                } else if ( val > 1 ) {
+                    val = 1;
+                }
+            }
+    
+            return val;
+        },
+    
         _dispatch: function ( type ) {
             var endpoint = ( 'init change slideEnd'.indexOf(type) > -1 )? this._isEndpoint() : undefined,
-                currentIndex = this._selectIdx;
+                currentIndex = this._selectIdx,
+                displacement = this._displacement( type );
     
             if ( !this._totalLength ) currentIndex = NaN;
-            this._$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType} );
+            this._$target.triggerHandler( {type: 'ixSlideLite:' + type, currentIndex: currentIndex, totalLength: this._totalLength, endpoint: endpoint, direction: this._directionType, displacement: displacement} );
         }
     
     }, 'ixSnack.SlideLite');
 
 
-ixSnack.OverlayList = $B.Class.extend({
+ixSnack.OverlayList = ixSnack.BaseClass.extend({
         initialize: function ( $target ) {
             this._$target = $target;
             this._$viewport = this._$target.find( '> .ix-list-viewport' );
@@ -1696,26 +1721,6 @@ ixSnack.OverlayList = $B.Class.extend({
             this._removeWaiAria();
         },
     
-        getCurrentIndex: function () {
-            return this._selectIdx;
-        },
-    
-        getTotalLength: function () {
-            return this._totalLength;
-        },
-    
-        enable: function () {
-            if ( this._swipe ) this._swipe.enable();
-            this._thumbController.enable();
-            this._disabled = false;
-        },
-    
-        disable: function () {
-            if ( this._swipe ) this._swipe.disable();
-            this._thumbController.disable();
-            this._disabled = true;
-        },
-    
         resize: function () {
             if ( !this._totalLength ) return;
     
@@ -1758,12 +1763,19 @@ ixSnack.OverlayList = $B.Class.extend({
         _getMotion: function () {
             var motion;
     
-            if ( this._options.motionType === 'overlay' ) {
-                motion = new ixSnack.OverlayList.OverlayMotion( this._$target, this._$ul, this._$items, this._options );
-            } else if ( this._options.motionType === 'slide' ) {
-                motion = new ixSnack.OverlayList.SlideMotion( this._$target, this._$ul, this._$items, this._options );
-            } else {
-                motion = new ixSnack.OverlayList.Motion( this._$target, this._$ul, this._$items, this._options );
+            switch ( this._options.motionType ) {
+                case 'overlay':
+                    motion = new ixSnack.OverlayList.OverlayMotion( this._$target, this._$ul, this._$items, this._options );
+                    break;
+                case 'slide':
+                    motion = new ixSnack.OverlayList.SlideMotion( this._$target, this._$ul, this._$items, this._options );
+                    break;
+                case 'mask':
+                    motion = new ixSnack.OverlayList.MaskMotion( this._$target, this._$ul, this._$items, this._options );
+                    break;
+                default :
+                    motion = new ixSnack.OverlayList.Motion( this._$target, this._$ul, this._$items, this._options );
+                    break;
             }
     
             return motion;
@@ -1786,9 +1798,13 @@ ixSnack.OverlayList = $B.Class.extend({
             this._$items.each( function ( idx, el ) {
                 //origin-index 속성 추가
                 $( el ).attr( 'data-idx', idx );
-            }).css({
-                position: 'absolute'
             });
+    
+            if ( this._options.motionType !== 'mask' ) {
+                this._$items.css({
+                    position: 'absolute'
+                });
+            }
         },
     
         _setAutoPlay: function () {
@@ -1819,8 +1835,9 @@ ixSnack.OverlayList = $B.Class.extend({
                         this._dispatch( 'touchStart' );
                     }, this))
                     .addListener( 'move', $B.bind(function (e) {
-                        if ( this._thumbController.block() ) return;
-                        this._motion.move( e );
+                        if ( !this._thumbController.block() && !this._motion.isEndpoint() && !this._motion.isFirstpoint() ) {
+                            this._motion.move( e );
+                        }
                     }, this))
                     .addListener( 'swipe', $B.bind(function (e) {
                         if ( this._thumbController.block() ) return;
@@ -1944,6 +1961,10 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
             return ( !this._options.loop && this._selectIdx === this._totalLength - 1 );
         },
     
+        isFirstpoint: function () {
+            return ( !this._options.loop && this._selectIdx === 0 );
+        },
+    
         //최소 최대 index값 보정
         correctSelectIdx: function ( idx ) {
             if ( idx > this._totalLength - 1 ) {
@@ -1965,9 +1986,9 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
         _overlayItem: function ( idx, isSilent, isAni ) {
             if ( isAni ) {
                 var $item = this._$items.eq( idx ).show();
-                ixSnack.opacity( $item, 0, this._options, null, null, true );
+                ixSnack.animate( $item, 'opacity', 0, this._options, null, null, true );
                 this._$ul.append( $item );
-                ixSnack.opacity( $item, 1, this._options, $B.bind(this._overlayComplete, this), {idx: idx, isSilent: isSilent} );
+                ixSnack.animate( $item, 'opacity', 1, this._options, $B.bind(this._overlayComplete, this), {idx: idx, isSilent: isSilent} );
             } else {
                 this._$items.hide().eq( idx ).show();
                 this._overlayComplete( {data: {idx: idx, isSilent: isSilent}} );
@@ -1978,6 +1999,30 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
             this._setWaiArea( e.data.idx );
             this._selectIdx = e.data.idx;
             this.dispatch( 'motionEnd', {idx: e.data.idx, isSilent: e.data.isSilent} );
+        },
+    
+        _getItemSize: function () {
+            if ( this._options.itemSize ) {
+                return this._options.itemSize.value;
+            } else {
+                var type = ( this._options.axis === 'horizontal' )? 'width' : 'height';
+                return $B( this._$items.get(this._selectIdx) ).rect()[type];
+            }
+        },
+    
+        _getItemMargins: function () {
+            var result = [];
+    
+            if ( this._options.itemMargin ) {
+                result = [this._options.itemMargin[0].value, this._options.itemMargin[1].value];
+            } else {
+                var margins = this._$items.css( this._options.axis === 'horizontal' ? ['marginLeft', 'marginRight'] : ['marginTop', 'marginBottom'] );
+                $.each( margins, function ( key, value ) {
+                    result.push( parseFloat(value) );
+                });
+            }
+    
+            return result;
         },
         
         _setWaiArea: function ( idx ) {
@@ -2068,7 +2113,6 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         resize: function () {
             this._setSize();
             this._arrangeItems( this._selectIdx );
-            //this._setWaiArea( this._selectIdx );
         },
     
         // =============== Private Methods =============== //
@@ -2139,15 +2183,6 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             return result;
         },
     
-        _getItemSize: function () {
-            if ( this._options.itemSize ) {
-                return this._options.itemSize.value;
-            } else {
-                var type = ( this._options.axis === 'horizontal' )? 'width' : 'height';
-                return $B( this._$items.get(this._selectIdx) ).rect()[type];
-            }
-        },
-    
         _arrangeItems: function ( idx, moveType ) {
             var centerIdx = this._getCenterIdx( idx, moveType ),
                 prevIdx = this._getPrevIdx( idx, moveType ),
@@ -2194,6 +2229,7 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             return moveType ? this._selectIdx : idx;
         },
     
+        //한칸씩 이동하는 index인지
         _isGradualIndex: function ( idx ) {
             return ( Math.abs(idx - this._selectIdx) === 1 );
         },
@@ -2223,23 +2259,300 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
     
             this._$items.css( itemStyle );
             this._$ul.css( ulStyle );
+        }
+    }, 'ixSnack.OverlayList.SlideMotion');
+
+
+ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
+        //@override
+        initialize: function ( $target, $ul, $items, options ) {
+            this._$target = $target;
+            this._$ul = $ul;
+            this._$items = $items;
+            this._options = options;
+    
+            this._totalLength = this._$items.length;
+            this._selectIdx = this._options.defaultIndex;
+            this._currentPos = 0;
+            this._positionProp = ( this._options.axis === 'horizontal' )? 'right' : 'bottom';
+    
+            this._setSize();
+            this._setDefaultStyle();
+            this._arrangeItems( this._selectIdx );
+            this._setWaiArea( this._selectIdx );
         },
     
-        _getItemMargins: function () {
-            var result = [];
+        // =============== Public Methods =============== //
     
-            if ( this._options.itemMargin ) {
-                result = [this._options.itemMargin[0].value, this._options.itemMargin[1].value];
+        //@override
+        next: function ( selectIdx, isChangeIndex ) {
+            if ( isChangeIndex && !this._isGradualIndex(selectIdx) ) this._arrangeItems( selectIdx, 'next' );
+            this._overlayItem( selectIdx, 'next' );
+        },
+    
+        //@override
+        prev: function ( selectIdx, isChangeIndex ) {
+            if ( isChangeIndex && !this._isGradualIndex(selectIdx) ) this._arrangeItems( selectIdx, 'prev' );
+            this._overlayItem( selectIdx, 'prev' );
+        },
+    
+        //@override
+        //swipe none
+        none: function () {
+            this._overlayItem( this._selectIdx, 'none' );
+        },
+    
+        //@override
+        move: function ( e ) {
+            this._touchMove( e );
+        },
+    
+        //@override
+        displacement: function () {
+            return this._currentPos / this._itemSize;
+        },
+    
+        //@override
+        resize: function () {
+            this._$items.children().css({
+                width: '',
+                height: ''
+            });
+    
+            this._setSize();
+            this._arrangeItems( this._selectIdx );
+        },
+    
+        //@override
+        clear: function () {
+            ixSnack.OverlayList.Motion.prototype.clear.call( this );
+            this._$items.children().css({
+                position: '',
+                right: '',
+                bottom: '',
+                width: '',
+                height: ''
+            });
+        },
+    
+        // =============== Private Methods =============== //
+    
+        //@override
+        _overlayItem: function ( idx, moveType ) {
+            idx = this.correctSelectIdx( idx );
+    
+            var pos = 0,
+                callbackData = {idx: idx, isSilent: false, moveType: moveType},
+                callback = $B.bind( this._overlayComplete, this );
+    
+            if ( moveType === 'next' ) {
+                pos = -this._itemSize;
+            } else if ( moveType === 'prev' ) {
+                pos = this._itemSize;
+            }
+    
+            this._size( pos, callback, callbackData, true );
+        },
+    
+        //@override
+        _overlayComplete: function (e) {
+            if ( e.data.moveType !== 'none' ) this._arrangeItems( e.data.idx );
+            ixSnack.OverlayList.Motion.prototype._overlayComplete.call( this, e );
+            this._currentPos = 0;
+        },
+    
+        _touchMove: function (e) {
+            var movePos = ( this._options.axis === 'horizontal' )? e.growX : e.growY,
+                pos = movePos + this._currentPos;
+    
+            if ( -this._itemSize > pos ) {
+                pos = -this._itemSize;
+    
+            } else if ( this._itemSize < pos ) {
+                pos = this._itemSize;
+            }
+    
+            if ( !this._isOverPosition(movePos) ) {
+                this._size( pos );
+            }
+    
+            this.dispatch( 'motionMove' );
+        },
+    
+        _size: function ( pos, callback, data, isAni ) {
+            var basePer = pos / this._itemSize * 100,
+                prevPer, centerPer, nextPer,
+                nextCallback, centerCallback, prevCallback,
+                notAni = !isAni;
+    
+            //next
+            if ( pos < 0 ) {
+                prevPer = '0%';
+                centerPer = this._correctPercent( 100 + basePer ) + '%';
+                nextPer = this._correctPercent( Math.abs(basePer) ) + '%';
             } else {
-                var margins = this._$items.css( this._options.axis === 'horizontal' ? ['marginLeft', 'marginRight'] : ['marginTop', 'marginBottom'] );
-                $.each( margins, function ( key, value ) {
-                    result.push( parseFloat(value) );
-                });
+                prevPer = this._correctPercent( basePer ) + '%';
+                centerPer = this._correctPercent( 100 - basePer ) + '%';
+                nextPer = '0%';
+            }
+    
+            if ( isAni ) {
+                if ( data.moveType === 'next' ) {
+                    centerCallback = callback;
+                } else if ( data.moveType === 'prev' ) {
+                    prevCallback = callback;
+                }
+            }
+    
+            this._setChildrenStyle( this._$prev, 'prev', pos );
+            this._setChildrenStyle( this._$center, 'center', pos );
+            this._setChildrenStyle( this._$next, 'next', pos );
+    
+            if ( this._prevIdx > -1 ) ixSnack.size( this._$prev, prevPer, this._options, prevCallback, data, notAni );
+            ixSnack.size( this._$center, centerPer, this._options, centerCallback, data, notAni );
+            if ( this._nextIdx > -1 ) ixSnack.size( this._$next, nextPer, this._options, nextCallback, data, notAni );
+    
+            this._currentPos = pos;
+        },
+    
+        _correctPercent: function ( val ) {
+            if ( val < 0 ) {
+                val = 0;
+            } else if ( val > 100 ) {
+                val = 100;
+            }
+    
+            return val;
+        },
+    
+        _isOverPosition: function ( grow ) {
+            var result = false;
+    
+            if ( !this._options.loop ) {
+                //prev
+                if ( grow > 0 && this._selectIdx <= 0 ) {
+                    result = true;
+                } else if ( grow < 0 && this._selectIdx >= this._totalLength - 1 ) {
+                    result = true;
+                }
             }
     
             return result;
+        },
+    
+        //touchstart, next, prev 시 동작
+        _arrangeItems: function ( idx, moveType ) {
+            var prevIdx = this._getPrevIdx( idx, moveType ),
+                centerIdx = this._getCenterIdx( idx, moveType ),
+                nextIdx = this._getNextIdx( idx, moveType );
+    
+            this._$prev = this._$items.eq( prevIdx );
+            this._$center = this._$items.eq( centerIdx );
+            this._$next = this._$items.eq( nextIdx );
+    
+            //hide
+            this._$items.each( $B.bind(function ( idx, el ) {
+                if ( prevIdx !== idx || nextIdx !== idx || centerIdx !== idx ) {
+                    var $el = $( el ).hide();
+                    ixSnack.size( $el, '100%', this._options, null, null, true );
+                }
+            }, this));
+    
+            if ( prevIdx > -1 ) this._setActiveItem( this._$prev, 'close' );
+            this._setActiveItem( this._$center, 'open' );
+            if ( nextIdx > -1 ) this._setActiveItem( this._$next, 'close' );
+    
+            this._prevIdx = prevIdx;
+            this._centerIdx = centerIdx;
+            this._nextIdx = nextIdx;
+        },
+    
+        _setActiveItem: function ( $el, type ) {
+            ixSnack.size( $el, (type === 'open')? '100%' : '0%', this._options, null, null, true );
+            this._$ul.append( $el );
+            $el.show();
+        },
+    
+        _setChildrenStyle: function ( $el, moveType, pos ) {
+            var style = {};
+    
+            //next
+            if ( pos < 0 ) {
+                if ( moveType === 'next' ) {
+                    style[this._positionProp] = 0;
+                } else {
+                    style[this._positionProp] = '';
+                }
+            } else {
+                if ( moveType === 'prev' ) {
+                    style[this._positionProp] = '';
+                } else {
+                    style[this._positionProp] = 0;
+                }
+            }
+    
+            $el.children().css( style );
+        },
+    
+        //왼쪽에 위치할 Element Index
+        _getPrevIdx: function ( idx, moveType ) {
+            var result = moveType ? ( moveType === 'next' ? -1 : idx ) : idx - 1;
+            return ( moveType === 'next' ? result : (this._options.loop ? this.correctSelectIdx(result) : result) );
+        },
+    
+        //오른쪽에 위치할 Element Index
+        _getNextIdx: function ( idx, moveType ) {
+            var result = moveType ? ( moveType === 'prev' ? -1 : idx ) : idx + 1;
+            return ( moveType === 'prev' ? result : (this._options.loop ? this.correctSelectIdx(result) : result) );
+        },
+    
+        //중심에 위치할 Element Index
+        _getCenterIdx: function ( idx, moveType ) {
+            return moveType ? this._selectIdx : idx;
+        },
+    
+        //한칸씩 이동하는 index인지
+        _isGradualIndex: function ( idx ) {
+            return ( Math.abs(idx - this._selectIdx) === 1 );
+        },
+    
+        _getChildrenSize: function () {
+            var sizeProp;
+    
+            if ( this._options.axis === 'horizontal' ) {
+                sizeProp = 'outerWidth';
+            } else {
+                sizeProp = 'outerHeight';
+            }
+    
+            return this._$items.eq( this._selectIdx ).children()[sizeProp]();
+        },
+    
+        _setSize: function () {
+            if ( !this._totalLength ) return;
+    
+            var sizeProp, itemStyle = {};
+    
+            this._itemSize = this._getItemSize();
+    
+            if ( this._options.axis === 'horizontal' ) {
+                sizeProp = 'width';
+            } else {
+                sizeProp = 'height';
+            }
+    
+            itemStyle[sizeProp] = this._getChildrenSize() + 'px';
+            this._$items.children().css( itemStyle );
+        },
+    
+        _setDefaultStyle: function () {
+            this._$items.css({
+                overflow: 'hidden'
+            }).children().css({
+                position: 'absolute'
+            });
         }
-    }, 'ixSnack.OverlayList.SlideMotion');
+    }, 'ixSnack.OverlayList.MaskMotion');
 
 
 ixSnack.BaseSlider = $B.Class.extend({
@@ -2575,7 +2888,7 @@ ixSnack.BaseSlider = $B.Class.extend({
     }, 'ixSnack.BaseSlider');
 
 
-ixSnack.Slider = $B.Class.extend({
+ixSnack.Slider = ixSnack.BaseClass.extend({
         initialize: function ( $target ) {
             this._$target = $target;
             this._$input = this._$target.find( '.ix-input' );
@@ -2853,7 +3166,7 @@ ixSnack.Slider = $B.Class.extend({
     }, 'ixSnack.Slider');
 
 
-ixSnack.RangeSlider = $B.Class.extend({
+ixSnack.RangeSlider = ixSnack.BaseClass.extend({
         initialize: function ( $target ) {
             this._$target = $target;
             this._$minInput = this._$target.find( '.ix-min-input' );
