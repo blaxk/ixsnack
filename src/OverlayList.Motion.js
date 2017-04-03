@@ -32,7 +32,7 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
     },
 
     move: function ( e ) {
-        this.dispatch( 'motionMove' );
+        //this.dispatch( 'motionMove' );
     },
 
     next: function ( selectIdx ) {
@@ -67,6 +67,21 @@ ixSnack.OverlayList.Motion = $B.Class.extend({
     },
 
     // =============== Private Methods =============== //
+
+    _isOverPosition: function ( pos ) {
+        var result = false;
+
+        if ( !this._options.loop ) {
+            //prev
+            if ( pos > 0 && this._selectIdx <= 0 ) {
+                result = true;
+            } else if ( pos < 0 && this._selectIdx >= this._totalLength - 1 ) {
+                result = true;
+            }
+        }
+
+        return result;
+    },
 
     //아이템 이동
     _overlayItem: function ( idx, isSilent, isAni ) {

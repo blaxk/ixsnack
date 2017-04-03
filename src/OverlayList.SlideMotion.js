@@ -16,8 +16,9 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
 
         this._totalLength = this._$items.length;
         this._selectIdx = this._options.defaultIndex;
-
         this._currentPos = 0;
+        this._growProp = ( this._options.axis === 'horizontal' )? 'growX' : 'growY';
+
         this._setSize();
         this._arrangeItems( this._selectIdx );
         this._setWaiArea( this._selectIdx );
@@ -45,7 +46,7 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
 
     //@override
     move: function ( e ) {
-        this._touchMove( e );
+        this._touchMove( e[this._growProp] );
     },
 
     //@override
@@ -77,7 +78,11 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             nextPos = this._itemSize;
             prevCallback = callback;
         } else {
-            prevCallback = callback;
+            if ( !this._options.loop && this._selectIdx === 0 ) {
+                nextCallback = callback;
+            } else {
+                prevCallback = callback;
+            }
         }
 
         if ( this._prevIdx > -1 ) ixSnack.move( this._$prev, nextPos + 'px', this._options, prevCallback, callbackData );
@@ -92,9 +97,8 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
         this._currentPos = 0;
     },
 
-    _touchMove: function (e) {
-        var movePos = ( this._options.axis === 'horizontal' )? e.growX : e.growY,
-            pos = movePos + this._currentPos;
+    _touchMove: function ( movePos ) {
+        var pos = movePos + this._currentPos;
 
         if ( -this._itemSize > pos ) {
             pos = -this._itemSize;
@@ -103,28 +107,12 @@ ixSnack.OverlayList.SlideMotion = ixSnack.OverlayList.Motion.extend({
             pos = this._itemSize;
         }
 
-        if ( !this._isOverPosition(movePos) ) {
+        if ( !this._isOverPosition(pos) ) {
             ixSnack.moveTo( this._$next, pos + 'px', this._options );
             ixSnack.moveTo( this._$prev, pos + 'px', this._options );
             this._currentPos = pos;
+            this.dispatch( 'motionMove' );
         }
-
-        this.dispatch( 'motionMove' );
-    },
-
-    _isOverPosition: function ( grow ) {
-        var result = false;
-
-        if ( !this._options.loop ) {
-            //prev
-            if ( grow > 0 && this._selectIdx <= 0 ) {
-                result = true;
-            } else if ( grow < 0 && this._selectIdx >= this._totalLength - 1 ) {
-                result = true;
-            }
-        }
-
-        return result;
     },
 
     _arrangeItems: function ( idx, moveType ) {

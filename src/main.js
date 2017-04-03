@@ -225,7 +225,7 @@ window.ixSnack = {
                         if ( autoComplete ) clearTimeout( autoComplete );
                         if ( typeof callback === 'function' ) callback( {data: data} );
                     }});
-                }, 1);
+                }, 0);
             }
         } else {
             prop = ( options.axis === 'horizontal' ) ? {left: pos} : {top: pos};
@@ -262,18 +262,18 @@ window.ixSnack = {
             } else {
                 var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
                     autoComplete = ( typeof callback === 'function' )? setTimeout( function (e) {
-                    //onTransitionEnd 이벤트가 발생하지 않을경우 대비
-                    if ( typeof callback === 'function' ) callback( {data: data} );
-                    if ( autoComplete ) clearTimeout( autoComplete );
-                }, options.duration * 2 ) : null;
+                        //onTransitionEnd 이벤트가 발생하지 않을경우 대비
+                        if ( autoComplete ) clearTimeout( autoComplete );
+                        if ( typeof callback === 'function' ) callback( {data: data} );
+                    }, options.duration * 2 ) : null;
 
                 //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                 setTimeout( function (e) {
-                    $B( $el ).transition( prop + ':' + value, prop + ' ' + options.duration + 'ms ' + easing + ';', function (e) {
+                    $B( $el ).transition( prop + ':' + value, prop + ' ' + options.duration + 'ms ' + easing + ';', {onTransitionEnd: function (e) {
                         if ( autoComplete ) clearTimeout( autoComplete );
                         if ( typeof callback === 'function' ) callback( {data: data} );
-                    });
-                }, 1);
+                    }});
+                }, 0);
             }
         } else {
             var aniStyle = {};

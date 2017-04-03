@@ -206,6 +206,8 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
     },
 
     _setEvents: function () {
+        var moveProp = ( this._options.axis === 'horizontal' )? 'moveX' : 'moveY';
+
         if ( !this._options.touchDisable && $B.ua.TOUCH_DEVICE && this._totalLength > 1 ) {
             this._swipe = new $B.event.Swipe( this._$viewport.get(0), {
                 axis: this._options.axis,
@@ -218,7 +220,7 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
                     this._dispatch( 'touchStart' );
                 }, this))
                 .addListener( 'move', $B.bind(function (e) {
-                    if ( !this._thumbController.block() && !this._motion.isEndpoint() && !this._motion.isFirstpoint() ) {
+                    if ( !this._thumbController.block() ) {
                         this._motion.move( e );
                     }
                 }, this))
@@ -227,7 +229,7 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
                     this._dispatch( 'touchEnd' );
 
                     //이동값이 변동이 없으면 transitionend 이벤트가 발생하지 않기 때문
-                    if ( (this._options.axis === 'horizontal'? e.moveX : e.moveY) === 0 ) {
+                    if ( e[moveProp] === 0 ) {
                         this._playTimer();
                         return;
                     }

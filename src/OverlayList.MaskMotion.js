@@ -18,6 +18,7 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
         this._selectIdx = this._options.defaultIndex;
         this._currentPos = 0;
         this._positionProp = ( this._options.axis === 'horizontal' )? 'right' : 'bottom';
+        this._growProp = ( this._options.axis === 'horizontal' )? 'growX' : 'growY';
 
         this._setSize();
         this._arrangeItems( this._selectIdx );
@@ -46,7 +47,7 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
 
     //@override
     move: function ( e ) {
-        this._touchMove( e );
+        this._touchMove( e[this._growProp] );
     },
 
     //@override
@@ -102,9 +103,8 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
         this._currentPos = 0;
     },
 
-    _touchMove: function (e) {
-        var movePos = ( this._options.axis === 'horizontal' )? e.growX : e.growY,
-            pos = movePos + this._currentPos;
+    _touchMove: function ( movePos ) {
+        var pos = movePos + this._currentPos;
 
         if ( -this._itemSize > pos ) {
             pos = -this._itemSize;
@@ -113,11 +113,10 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
             pos = this._itemSize;
         }
 
-        if ( !this._isOverPosition(movePos) ) {
+        if ( !this._isOverPosition(pos) ) {
             this._size( pos );
+            this.dispatch( 'motionMove' );
         }
-
-        this.dispatch( 'motionMove' );
     },
 
     _size: function ( pos, callback, data, isAni ) {
@@ -139,9 +138,11 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
 
         if ( isAni ) {
             if ( data.moveType === 'next' ) {
-                centerCallback = callback;
+                nextCallback = callback;
             } else if ( data.moveType === 'prev' ) {
                 prevCallback = callback;
+            } else {
+                centerCallback = callback;
             }
         }
 
@@ -164,21 +165,6 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
         }
 
         return val;
-    },
-
-    _isOverPosition: function ( grow ) {
-        var result = false;
-
-        if ( !this._options.loop ) {
-            //prev
-            if ( grow > 0 && this._selectIdx <= 0 ) {
-                result = true;
-            } else if ( grow < 0 && this._selectIdx >= this._totalLength - 1 ) {
-                result = true;
-            }
-        }
-
-        return result;
     },
 
     //touchstart, next, prev 시 동작
@@ -224,7 +210,7 @@ ixSnack.OverlayList.MaskMotion = ixSnack.OverlayList.Motion.extend({
             } else {
                 style[this._positionProp] = '';
             }
-        } else {
+        } else if ( pos > 0 ) {
             if ( moveType === 'prev' ) {
                 style[this._positionProp] = '';
             } else {
