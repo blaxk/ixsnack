@@ -110,6 +110,7 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
         this._pauseTimer();
         this._removeSize();
         this._motion.resize();
+        this._setSize();
         this._playTimer();
     },
 

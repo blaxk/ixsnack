@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.1 (1704031857)
+ * @version v0.4.1 (1704101720)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -1727,6 +1727,7 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
             this._pauseTimer();
             this._removeSize();
             this._motion.resize();
+            this._setSize();
             this._playTimer();
         },
     
