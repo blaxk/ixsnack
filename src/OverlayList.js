@@ -259,8 +259,9 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
             this.prev();
         } else {
             this._dispatch( 'slideStart' );
+            this._pauseTimer();
+            this._thumbController.block( true );
             this._motion.none();
-            this._playTimer();
         }
     },
 

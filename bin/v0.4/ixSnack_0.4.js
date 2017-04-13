@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.1 (1704101720)
+ * @version v0.4.1 (1704130939)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -1876,8 +1876,9 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
                 this.prev();
             } else {
                 this._dispatch( 'slideStart' );
+                this._pauseTimer();
+                this._thumbController.block( true );
                 this._motion.none();
-                this._playTimer();
             }
         },
     
