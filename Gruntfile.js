@@ -36,7 +36,7 @@ module.exports = function ( grunt ) {
                     'src/Slider.js',
                     'src/RangeSlider.js'
                 ],
-                dest: 'bin/v<%= pkg.version %>/<%= pkg.name %>_<%= pkg.version %>.js'
+                dest: 'bin/<%= pkg.name %>_<%= pkg.version %>.js'
             }
         },
         'uglify': {
@@ -67,8 +67,8 @@ module.exports = function ( grunt ) {
                 options: {
                     //ixBand new version source
                     replacements: [{
-                        pattern: /\/v[0-9.]+\//g,
-                        replacement: '/v' + pkg.version + '/'
+                        pattern: /\/v[0-9.]+\/ixSnack/g,
+                        replacement: '/'
                     }, {
                         pattern: /\/ixBand_([0-9.]+)(.min)*.js/g,
                         replacement: function ( match, p1, p2 ) {
