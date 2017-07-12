@@ -47,9 +47,9 @@ module.exports = function ( grunt ) {
             my_target: {
                 files: [{
                     expand: true,
-                    cwd: 'bin/v<%= pkg.version %>',
+                    cwd: 'bin/',
                     src: ['<%= pkg.name %>_<%= pkg.version %>.js'],
-                    dest: 'bin/v<%= pkg.version %>/',
+                    dest: 'bin/',
                     rename: function ( dest, src ) {
                         return dest + src.replace( /.js$/, '.min.js' );
                     }

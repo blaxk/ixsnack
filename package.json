@@ -1,7 +1,7 @@
 {
   "name": "ixSnack",
   "version": "0.4",
-  "buildVersion": "0.4.1",
+  "buildVersion": "0.4.2",
   "description": "ixSnack.js Development.",
   "main": "bin/main.js",
   "dependencies": {},

@@ -63,7 +63,7 @@ ixSnack.ThumbController = $B.Class.extend({
     clear: function () {
         this._$prevBtn.off( 'click', this._directionHandler );
         this._$nextBtn.off( 'click', this._directionHandler );
-        this._$thumbs.off( 'click', 'a.ix-btn', this._thumbHandler );
+        this._$thumbs.off( 'click', '.ix-btn', this._thumbHandler );
         this._$thumbArea.html( this._thumbHtml );
         this._$controller.removeClass( 'disabled' );
         this._$prevBtn.removeClass( 'disabled' ).removeAttr( 'aria-disabled' );
@@ -99,7 +99,7 @@ ixSnack.ThumbController = $B.Class.extend({
 
         this._$prevBtn.on( 'click', this._directionHandler );
         this._$nextBtn.on( 'click', this._directionHandler );
-        this._$thumbs.on( 'click', 'a.ix-btn', this._thumbHandler );
+        this._$thumbs.on( 'click', '.ix-btn', this._thumbHandler );
     },
 
     //좌우화살표 상태 처리

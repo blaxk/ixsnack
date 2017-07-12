@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.1 (1704130939)
+ * @version v0.4.2 (1707120928)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -29,7 +29,7 @@
      * Plugin에서 사용하는 공통기능
      */
     window.ixSnack = {
-        VERSION: '0.4.1',
+        VERSION: '0.4.2',
         MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
         TRANSFORM: (function () {
             if ( !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
@@ -630,7 +630,7 @@ ixSnack.ThumbController = $B.Class.extend({
         clear: function () {
             this._$prevBtn.off( 'click', this._directionHandler );
             this._$nextBtn.off( 'click', this._directionHandler );
-            this._$thumbs.off( 'click', 'a.ix-btn', this._thumbHandler );
+            this._$thumbs.off( 'click', '.ix-btn', this._thumbHandler );
             this._$thumbArea.html( this._thumbHtml );
             this._$controller.removeClass( 'disabled' );
             this._$prevBtn.removeClass( 'disabled' ).removeAttr( 'aria-disabled' );
@@ -666,7 +666,7 @@ ixSnack.ThumbController = $B.Class.extend({
     
             this._$prevBtn.on( 'click', this._directionHandler );
             this._$nextBtn.on( 'click', this._directionHandler );
-            this._$thumbs.on( 'click', 'a.ix-btn', this._thumbHandler );
+            this._$thumbs.on( 'click', '.ix-btn', this._thumbHandler );
         },
     
         //좌우화살표 상태 처리
