@@ -39,7 +39,7 @@ window.ixSnack = {
         //method 호출
         if ( typeof val1 === 'string' ) {
             //getter
-            if ( /^get[A-Z]/.test(val1) ) {
+            if ( /^get[A-Z]|^is[A-Z]/.test(val1) ) {
                 return ixSnack.callPlugin( $target.eq(0), pluginName, val1, val2 );
             } else {
                 $target.each( function ( idx, el ) {

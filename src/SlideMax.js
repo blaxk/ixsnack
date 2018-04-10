@@ -8,7 +8,12 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         this._$target = $target;
         this._$viewport = this._$target.find( '> .ix-list-viewport' );
         this._$ul = this._$viewport.find( '> .ix-list-items' );
+        this._$touchArea = this._$target.find( '> .ix-touch-area' );
         this._options = ixSnack.getOptions( this._$target.attr('data-ix-options') );
+
+        if ( !this._$touchArea.length ) {
+			this._$touchArea = this._$viewport;
+        }
 
         this._directionType = 'none';
         this._selectIdx = 0;
@@ -65,16 +70,14 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         this._selectOriginIdx( originIdx );
     },
 
-    next: function ( rangeLength, isInput ) {
-        if ( this._disabled || this._thumbController.block() ) return;
-        this._directionType = 'next';
-        this._listIndexManager.next( rangeLength, isInput );
+    next: function ( moveLength ) {
+        if ( moveLength > this._options.viewLength ) return;
+        this._next( moveLength, true );
     },
 
-    prev: function ( rangeLength, isInput ) {
-        if ( this._disabled || this._thumbController.block() ) return;
-        this._directionType = 'prev';
-        this._listIndexManager.prev( rangeLength, isInput );
+    prev: function ( moveLength ) {
+		if ( moveLength > this._options.viewLength ) return;
+        this._prev( moveLength, true );
     },
 
     clear: function () {
@@ -96,15 +99,36 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         this._moveItems( this._selectIdx, 'none', true, true );
     },
 
+    //v0.4.3 에서 origin-idx 를 반환 하도록 수정
+	getCurrentIndex: function ( total ) {
+        if ( total && typeof total === 'boolean' ) {
+			return this._selectIdx;
+        } else {
+			return this._originIdx;
+        }
+	},
+
     // =============== Private Methods =============== //
+
+    _next: function ( rangeLength, isInput ) {
+		if ( this._disabled || this._thumbController.block() ) return;
+		this._directionType = 'next';
+		this._listIndexManager.next( rangeLength, isInput );
+    },
+
+	_prev: function ( rangeLength, isInput ) {
+		if ( this._disabled || this._thumbController.block() ) return;
+		this._directionType = 'prev';
+		this._listIndexManager.prev( rangeLength, isInput );
+	},
 
     _thumbHandler: function (e) {
         switch ( e.type ) {
             case 'next':
-                this.next();
+                this._next();
                 break;
             case 'prev':
-                this.prev();
+                this._prev();
                 break;
             case 'index':
                 this.changeIndex( e.index );
@@ -172,7 +196,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
 
     _setEvents: function () {
         if ( !this._options.touchDisable && $B.ua.TOUCH_DEVICE && this._totalLength > this._options.viewLength ) {
-            this._swipe = new $B.event.Swipe( this._$viewport.get(0), {
+            this._swipe = new $B.event.Swipe( this._$touchArea.get(0), {
                 axis: this._options.axis,
                 //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
                 preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
@@ -227,9 +251,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
 
     _targetSwipe: function ( type ) {
         if ( type === 'left' || type === 'up' ) {
-            this.next();
+            this._next();
         } else if ( type === 'right' || type === 'down' ) {
-            this.prev();
+            this._prev();
         } else {
             this._dispatch( 'slideStart' );
             this._moveItems( this._selectIdx, this._options.motionType );
@@ -243,7 +267,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
             if ( this._options.paging && this._options.viewLength > 1 ) {
                 total = this._indexToPosition( this._options.viewLength * Math.floor(this._totalLength / this._options.viewLength) );
             } else if ( this._options.correctEndpoint ) {
-                total = -( this._totalLength * this._itemSize - this._viewportSize );
+                total = -( this._totalLength * this._itemSize - this._viewportSize + this._options.correctEndpoint );
             } else {
                 total = this._indexToPosition( this._totalLength - this._options.viewLength );
             }
@@ -305,8 +329,8 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     _getCorrectEndpoint: function ( pos, idx ) {
         if ( this._originLength > this._options.viewLength ) {
             if ( this._options.correctEndpoint && !this._options.loop && !this._options.paging && this._endpoint ) {
-                var isOverPos = ( (this._totalLength - idx) * this._itemSize ) < this._viewportSize;
-                if ( isOverPos ) pos = -( this._totalLength * this._itemSize - this._viewportSize );
+                var isOverPos = ( (this._totalLength - idx) * this._itemSize + this._options.correctEndpoint ) < this._viewportSize;
+                if ( isOverPos ) pos = -( this._totalLength * this._itemSize - this._viewportSize + this._options.correctEndpoint );
             }
         }
         return pos;
@@ -328,9 +352,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         this._timer = new $B.utils.Timer( this._options.delay, 0 )
             .addListener( 'timer', $B.bind(function (e) {
                 if ( this._options.opposite ) {
-                    this.prev();
+                    this._prev();
                 } else {
-                    this.next();
+                    this._next();
                 }
             }, this)).start();
     },
@@ -351,6 +375,15 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         this._itemSize = this._getItemSize();
 
         if ( !this._options.includeMargin ) this._itemSize += itemMarginTotal;
+
+		//correctEndpoint px을 % 단위 변환
+		if ( typeof this._options.correctEndpoint === 'string' ) {
+            if ( /\%/.test(this._options.correctEndpoint) ) {
+				this._options.correctEndpoint = this._itemSize * ( parseFloat(this._options.correctEndpoint) / 100 );
+            } else {
+				this._options.correctEndpoint = parseFloat( this._options.correctEndpoint );
+            }
+		}
 
         if ( this._options.axis === 'horizontal' ) {
             sizeProp = 'width';
@@ -383,9 +416,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         if ( originIdx > this._originLength || originIdx < 0 ) return;
 
         if ( this._originIdx < originIdx ) {
-            this.next( originIdx - this._originIdx, true );
+            this._next( originIdx - this._originIdx, true );
         } else if ( this._originIdx > originIdx ) {
-            this.prev( this._originIdx - originIdx, true );
+            this._prev( this._originIdx - originIdx, true );
         }
     },
 
@@ -412,6 +445,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
             return $B( this._$items.get(0) ).rect()[type];
         }
     },
+
     _removeSize: function () {
         this._$viewport.attr( 'style', '' );
         this._$ul.attr( 'style', '' );

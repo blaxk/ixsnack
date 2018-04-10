@@ -36,7 +36,7 @@ module.exports = function ( grunt ) {
                     'src/Slider.js',
                     'src/RangeSlider.js'
                 ],
-                dest: 'bin/<%= pkg.name %>_<%= pkg.version %>.js'
+                dest: 'dist/<%= pkg.name %>_<%= pkg.version %>.js'
             }
         },
         'uglify': {
@@ -45,15 +45,26 @@ module.exports = function ( grunt ) {
                 ASCIIOnly: true
             },
             my_target: {
-                files: [{
-                    expand: true,
-                    cwd: 'bin/',
-                    src: ['<%= pkg.name %>_<%= pkg.version %>.js'],
-                    dest: 'bin/',
-                    rename: function ( dest, src ) {
-                        return dest + src.replace( /.js$/, '.min.js' );
-                    }
-                }]
+                files: [
+					{
+						expand: true,
+						cwd: 'dist',
+						src: ['<%= pkg.name %>_<%= pkg.version %>.js'],
+						dest: 'dist/',
+						rename: function ( dest, src ) {
+							return dest + src.replace( /.js$/, '.min.js' );
+						}
+					},
+					{
+						expand: true,
+						cwd: 'dist',
+						src: ['<%= pkg.name %>_<%= pkg.version %>.js'],
+						dest: 'dist/',
+						rename: function ( dest, src ) {
+							return dest + 'ixSnack.min.js';
+						}
+					}
+                ]
             }
         },
         'string-replace': {

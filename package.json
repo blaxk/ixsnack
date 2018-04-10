@@ -1,9 +1,9 @@
 {
   "name": "ixSnack",
   "version": "0.4",
-  "buildVersion": "0.4.2",
+  "buildVersion": "0.4.3",
   "description": "ixSnack.js Development.",
-  "main": "bin/main.js",
+  "main": "dist/ixSnack.min.js",
   "dependencies": {},
   "devDependencies": {
     "grunt": "^1.0.1",

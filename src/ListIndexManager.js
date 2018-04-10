@@ -68,12 +68,15 @@ ixSnack.ListIndexManager = $B.Class.extend({
         var nextSelectIdx = this._selectIdx + rangeLength;
 
         if ( this._options.loop ) {
-            //datumPoint 설정시 1개 정도 더 보여야 해서
+            //TODO: 사용자가 methods (next, prev, changeIndex)를 이용하여 이동시킬때 보정을 거친후 이동
             if ( isInput ) {
-                if ( nextSelectIdx < 1 ) {
+				var nextRangeIdx = ( rangeLength > 0 )? nextSelectIdx + this._options.viewLength : nextSelectIdx - this._options.viewLength;
+
+				//datumPoint 설정시 1개 정도 더 보여야 해서
+                if ( nextRangeIdx < 1 ) {
                     this._dispatch( 'correct', this._lastCloneStartIdx - (this._originStartIdx - this._selectIdx) );
                     nextSelectIdx = this._selectIdx + rangeLength;
-                } else if ( nextSelectIdx > this._options.totalLength - 1 ) {
+                } else if ( nextRangeIdx > this._options.totalLength - 1 ) {
                     this._dispatch( 'correct', this._originStartIdx + (this._selectIdx - this._lastCloneStartIdx) );
                     nextSelectIdx = this._selectIdx + rangeLength;
                 }
