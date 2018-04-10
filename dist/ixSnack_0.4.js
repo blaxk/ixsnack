@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.3 (1804101507)
+ * @version v0.4.3 (1804101527)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -1112,17 +1112,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
                 itemMargins = this._getItemMargins(), itemMarginTotal = itemMargins[0] + itemMargins[1];
     
             this._itemSize = this._getItemSize();
-    
             if ( !this._options.includeMargin ) this._itemSize += itemMarginTotal;
-    
-    		//correctEndpoint px을 % 단위 변환
-    		if ( typeof this._options.correctEndpoint === 'string' ) {
-                if ( /\%/.test(this._options.correctEndpoint) ) {
-    				this._options.correctEndpoint = this._itemSize * ( parseFloat(this._options.correctEndpoint) / 100 );
-                } else {
-    				this._options.correctEndpoint = parseFloat( this._options.correctEndpoint );
-                }
-    		}
     
             if ( this._options.axis === 'horizontal' ) {
                 sizeProp = 'width';
@@ -1144,6 +1134,15 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
             this._$ul.css( ulStyle );
     
             this._viewportSize = this._$viewport[viewportSizeProp]();
+    
+    		//correctEndpoint px을 % 단위 변환
+    		if ( typeof this._options.correctEndpoint === 'string' ) {
+    			if ( /\%/.test(this._options.correctEndpoint) ) {
+    				this._options.correctEndpoint = this._viewportSize * ( parseFloat(this._options.correctEndpoint) / 100 );
+    			} else {
+    				this._options.correctEndpoint = parseFloat( this._options.correctEndpoint );
+    			}
+    		}
         },
     
         _getViewportHeight: function () {
