@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.3 (1804111131)
+ * @version v0.4.3 (1804111216)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -817,7 +817,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         prev: function ( moveLength ) {
     		moveLength = Math.abs( moveLength );
     		if ( moveLength > this._options.viewLength ) return;
-            this._prev( -moveLength, true );
+            this._prev( moveLength, true );
         },
     
         clear: function () {

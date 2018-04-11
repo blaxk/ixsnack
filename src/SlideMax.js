@@ -77,7 +77,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     prev: function ( moveLength ) {
 		moveLength = Math.abs( moveLength );
 		if ( moveLength > this._options.viewLength ) return;
-        this._prev( -moveLength, true );
+        this._prev( moveLength, true );
     },
 
     clear: function () {
