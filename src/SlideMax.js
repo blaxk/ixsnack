@@ -50,8 +50,6 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
             onCorrect: $B.bind( this._listIndexEventHandler, this ),
             onInit: $B.bind( this._listIndexEventHandler, this )
         });
-
-        this._dispatch( 'init' );
     },
     // =============== Public Methods =============== //
 
@@ -71,13 +69,15 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     },
 
     next: function ( moveLength ) {
+		moveLength = Math.abs( moveLength );
         if ( moveLength > this._options.viewLength ) return;
         this._next( moveLength, true );
     },
 
     prev: function ( moveLength ) {
+		moveLength = Math.abs( moveLength );
 		if ( moveLength > this._options.viewLength ) return;
-        this._prev( moveLength, true );
+        this._prev( -moveLength, true );
     },
 
     clear: function () {
@@ -125,10 +125,10 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     _thumbHandler: function (e) {
         switch ( e.type ) {
             case 'next':
-                this._next();
+                this._next( null, true );
                 break;
             case 'prev':
-                this._prev();
+                this._prev( null, true );
                 break;
             case 'index':
                 this.changeIndex( e.index );
@@ -151,6 +151,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
                 this._endpoint = e.endpoint;
                 this._originIdx = Number( this._$items.eq(e.index).attr('data-origin-idx') );
                 this._moveItems( e.index, 'none', false, true );
+				this._dispatch( 'init' );
                 break;
         }
     },
@@ -352,9 +353,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         this._timer = new $B.utils.Timer( this._options.delay, 0 )
             .addListener( 'timer', $B.bind(function (e) {
                 if ( this._options.opposite ) {
-                    this._prev();
+                    this._prev( null, true );
                 } else {
-                    this._next();
+                    this._next( null, true );
                 }
             }, this)).start();
     },

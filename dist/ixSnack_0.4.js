@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.3 (1804101527)
+ * @version v0.4.3 (1804111131)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -198,6 +198,7 @@
             defaultOpt.easing = $B.string.camelCase( defaultOpt.easing );
             if ( defaultOpt.paging && defaultOpt.loop ) defaultOpt.paging = false;
             if ( !defaultOpt.numberFormat ) defaultOpt.currencyFormat = '';
+            if ( defaultOpt.defaultIndex < 0 ) defaultOpt.defaultIndex = 0;
     
             return defaultOpt;
         },
@@ -491,7 +492,7 @@ ixSnack.ListIndexManager = $B.Class.extend({
             var nextSelectIdx = this._selectIdx + rangeLength;
     
             if ( this._options.loop ) {
-                //TODO: 사용자가 methods (next, prev, changeIndex)를 이용하여 이동시킬때 보정을 거친후 이동
+                //next, prev, changeIndex 를 이용하여 이동시킬때 보정을 거친후 이동
                 if ( isInput ) {
     				var nextRangeIdx = ( rangeLength > 0 )? nextSelectIdx + this._options.viewLength : nextSelectIdx - this._options.viewLength;
     
@@ -789,8 +790,6 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
                 onCorrect: $B.bind( this._listIndexEventHandler, this ),
                 onInit: $B.bind( this._listIndexEventHandler, this )
             });
-    
-            this._dispatch( 'init' );
         },
         // =============== Public Methods =============== //
     
@@ -810,13 +809,15 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         },
     
         next: function ( moveLength ) {
+    		moveLength = Math.abs( moveLength );
             if ( moveLength > this._options.viewLength ) return;
             this._next( moveLength, true );
         },
     
         prev: function ( moveLength ) {
+    		moveLength = Math.abs( moveLength );
     		if ( moveLength > this._options.viewLength ) return;
-            this._prev( moveLength, true );
+            this._prev( -moveLength, true );
         },
     
         clear: function () {
@@ -864,10 +865,10 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         _thumbHandler: function (e) {
             switch ( e.type ) {
                 case 'next':
-                    this._next();
+                    this._next( null, true );
                     break;
                 case 'prev':
-                    this._prev();
+                    this._prev( null, true );
                     break;
                 case 'index':
                     this.changeIndex( e.index );
@@ -890,6 +891,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
                     this._endpoint = e.endpoint;
                     this._originIdx = Number( this._$items.eq(e.index).attr('data-origin-idx') );
                     this._moveItems( e.index, 'none', false, true );
+    				this._dispatch( 'init' );
                     break;
             }
         },
@@ -1091,9 +1093,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
             this._timer = new $B.utils.Timer( this._options.delay, 0 )
                 .addListener( 'timer', $B.bind(function (e) {
                     if ( this._options.opposite ) {
-                        this._prev();
+                        this._prev( null, true );
                     } else {
-                        this._next();
+                        this._next( null, true );
                     }
                 }, this)).start();
         },

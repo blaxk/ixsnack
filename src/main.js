@@ -189,6 +189,7 @@ window.ixSnack = {
         defaultOpt.easing = $B.string.camelCase( defaultOpt.easing );
         if ( defaultOpt.paging && defaultOpt.loop ) defaultOpt.paging = false;
         if ( !defaultOpt.numberFormat ) defaultOpt.currencyFormat = '';
+        if ( defaultOpt.defaultIndex < 0 ) defaultOpt.defaultIndex = 0;
 
         return defaultOpt;
     },
