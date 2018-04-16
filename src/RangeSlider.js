@@ -174,9 +174,9 @@ ixSnack.RangeSlider = ixSnack.BaseClass.extend({
                 this._touchEvent.addListener( 'touchstart', this._onTouch );
             } else {
                 this._gAxis = new $B.event.GestureAxis( this._$slideBar, {
-                        aType: this._options.axis,
-                        //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
-                        preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
+                        aType: this._options.axis
+					    //Safari v10~ preventDefault issue (ixband v1.1.2 에서 해결 됨)
+                        //preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
                     })
                     .addListener( 'axis', this._onTouch );
 

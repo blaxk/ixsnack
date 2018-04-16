@@ -198,9 +198,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     _setEvents: function () {
         if ( !this._options.touchDisable && $B.ua.TOUCH_DEVICE && this._totalLength > this._options.viewLength ) {
             this._swipe = new $B.event.Swipe( this._$touchArea.get(0), {
-                axis: this._options.axis,
-                //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
-                preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
+                axis: this._options.axis
+                //Safari v10~ preventDefault issue (ixband v1.1.2 에서 해결 됨)
+                //preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
             }).sensitivity( this._options.swipeSensitivity )
                 .addListener( 'axis', $B.bind(function (e) {
                     if ( this._thumbController.block() ) return;

@@ -1,7 +1,7 @@
 /**
  * ixSnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.3 (1804111216)
+ * @version v0.4.3 (1804161458)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function ( $, $B ) {
@@ -938,9 +938,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         _setEvents: function () {
             if ( !this._options.touchDisable && $B.ua.TOUCH_DEVICE && this._totalLength > this._options.viewLength ) {
                 this._swipe = new $B.event.Swipe( this._$touchArea.get(0), {
-                    axis: this._options.axis,
-                    //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
-                    preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
+                    axis: this._options.axis
+                    //Safari v10~ preventDefault issue (ixband v1.1.2 에서 해결 됨)
+                    //preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
                 }).sensitivity( this._options.swipeSensitivity )
                     .addListener( 'axis', $B.bind(function (e) {
                         if ( this._thumbController.block() ) return;
@@ -1324,9 +1324,9 @@ ixSnack.SlideLite = ixSnack.BaseClass.extend({
         _setEvents: function () {
             if ( !this._options.touchDisable && $B.ua.TOUCH_DEVICE && this._totalLength > 1 ) {
                 this._swipe = new $B.event.Swipe( this._$touchArea.get(0), {
-                    axis: this._options.axis,
-                    //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
-                    preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
+                    axis: this._options.axis
+    				//Safari v10~ preventDefault issue (ixband v1.1.2 에서 해결 됨)
+                    //preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
                 }).sensitivity( this._options.swipeSensitivity )
                     .addListener( 'axis', $B.bind(function (e) {
                         if ( this._thumbController.block() ) return;
@@ -1876,9 +1876,9 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
     
             if ( !this._options.touchDisable && $B.ua.TOUCH_DEVICE && this._totalLength > 1 ) {
                 this._swipe = new $B.event.Swipe( this._$touchArea.get(0), {
-                    axis: this._options.axis,
-                    //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
-                    preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
+                    axis: this._options.axis
+    				//Safari v10~ preventDefault issue (ixband v1.1.2 에서 해결 됨)
+                    //preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
                 }).sensitivity( this._options.swipeSensitivity )
                     .addListener( 'axis', $B.bind(function (e) {
                         if ( this._thumbController.block() ) return;
@@ -3029,9 +3029,9 @@ ixSnack.Slider = ixSnack.BaseClass.extend({
                     this._touchEvent.addListener( 'touchstart', this._onTouch );
                 } else {
                     this._gAxis = new $B.event.GestureAxis( this._$slideBar, {
-                            aType: this._options.axis,
-                            //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
-                            preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
+                            aType: this._options.axis
+    					    //Safari v10~ preventDefault issue (ixband v1.1.2 에서 해결 됨)
+                            //preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
                         })
                         .addListener( 'axis', this._onTouch );
     
@@ -3368,9 +3368,9 @@ ixSnack.RangeSlider = ixSnack.BaseClass.extend({
                     this._touchEvent.addListener( 'touchstart', this._onTouch );
                 } else {
                     this._gAxis = new $B.event.GestureAxis( this._$slideBar, {
-                            aType: this._options.axis,
-                            //TODO: Safari v10~ preventDefault issue 임시방편 해결 필요
-                            preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
+                            aType: this._options.axis
+    					    //Safari v10~ preventDefault issue (ixband v1.1.2 에서 해결 됨)
+                            //preventDefault: this._options.axis === 'vertical' && $B.ua.SAFARI && parseFloat( $B.ua.VERSION ) > 9
                         })
                         .addListener( 'axis', this._onTouch );
     
