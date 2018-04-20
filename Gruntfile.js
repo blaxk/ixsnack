@@ -76,12 +76,12 @@ module.exports = function ( grunt ) {
                     dest: 'test/'
                 }],
                 options: {
-                    //ixBand new version source
+                    //ixSnack new version source
                     replacements: [{
                         pattern: /\/v[0-9.]+\/ixSnack/g,
                         replacement: '/'
                     }, {
-                        pattern: /\/ixBand_([0-9.]+)(.min)*.js/g,
+                        pattern: /\/ixSnack_([0-9.]+)(.min)*.js/g,
                         replacement: function ( match, p1, p2 ) {
                             return '/ixSnack_' + pkg.version + ( p2 || '' ) + '.js';
                         }

@@ -61,22 +61,22 @@ window.ixSnack = {
     },
 
     hasPlugin: function ( $target, pluginName ) {
-        return ( $target.prop(pluginName) && $target.hasClass('ix-' + pluginName + '-apply') );
+        return ( $target.prop('ix-' + pluginName) && $target.hasClass('ix-' + pluginName + '-apply') );
     },
 
     addPlugin: function ( $target, pluginName, plugin ) {
-        $target.prop( pluginName, _pluginId ).addClass( 'ix-' + pluginName + '-apply' );
+        $target.prop( 'ix-' + pluginName, _pluginId ).addClass( 'ix-' + pluginName + '-apply' );
         _pluginPool[_pluginId] = plugin;
         _pluginId++;
     },
 
     removePlugin: function ( $target, pluginName ) {
-        $target.removeProp( pluginName ).removeClass( 'ix-' + pluginName + '-apply' ).removeClass( 'ix-options-apply' );
+        $target.removeProp( 'ix-' + pluginName ).removeClass( 'ix-' + pluginName + '-apply' ).removeClass( 'ix-options-apply' );
         delete _pluginPool[$target.prop(pluginName)];
     },
 
     callPlugin: function ( $target, pluginName, method, val1, val2 ) {
-        var pluginId = $target.prop( pluginName );
+        var pluginId = $target.prop( 'ix-' + pluginName );
         if ( _pluginPool[pluginId] && typeof _pluginPool[pluginId][method] === 'function' ) {
             return _pluginPool[pluginId][method]( val1, val2 );
         }
@@ -210,6 +210,7 @@ window.ixSnack = {
 
             if ( notAni ) {
                 $B( $el ).transition( prop, 'none' );
+				$el.prop( 'ix-noneTransitionTime', new Date().getTime() );
                 if ( typeof callback === 'function' ) callback( {data: data} );
             } else {
                 var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
@@ -218,7 +219,8 @@ window.ixSnack = {
                         //onTransitionEnd 이벤트가 발생하지 않을경우 대비
                         if ( autoComplete ) clearTimeout( autoComplete );
                         if ( typeof callback === 'function' ) callback( {data: data} );
-                    }, options.duration * 2 ) : null;
+                    }, options.duration * 1.5 ) : null,
+                    timeGap = new Date().getTime() - ( $el.prop('ix-noneTransitionTime') || 0 );
 
                 //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                 setTimeout( function (e) {
@@ -226,7 +228,7 @@ window.ixSnack = {
                         if ( autoComplete ) clearTimeout( autoComplete );
                         if ( typeof callback === 'function' ) callback( {data: data} );
                     }});
-                }, 0);
+				}, timeGap < 5? 30 : 0);//transition:none; 실행이후 1000/1초 이내로 transition을 실행하면 none이 무시되기 때문에 delay 처리
             }
         } else {
             prop = ( options.axis === 'horizontal' ) ? {left: pos} : {top: pos};
@@ -259,6 +261,7 @@ window.ixSnack = {
         if ( ixSnack.TRANSFORM ) {
             if ( notAni ) {
                 $B( $el ).transition( prop + ':' + value, 'none' );
+				$el.prop( 'ix-noneTransitionTime', new Date().getTime() );
                 if ( typeof callback === 'function' ) callback( {data: data} );
             } else {
                 var easing = ( ixSnack.getCssEasing ) ? ixSnack.getCssEasing( options.easing ) : options.easing,
@@ -266,7 +269,8 @@ window.ixSnack = {
                         //onTransitionEnd 이벤트가 발생하지 않을경우 대비
                         if ( autoComplete ) clearTimeout( autoComplete );
                         if ( typeof callback === 'function' ) callback( {data: data} );
-                    }, options.duration * 2 ) : null;
+                    }, options.duration * 1.5 ) : null,
+					timeGap = new Date().getTime() - ( $el.prop('ix-noneTransitionTime') || 0 );
 
                 //style적용 바로 이후 실행될때 transition이 제대로 실행되기 위한
                 setTimeout( function (e) {
@@ -274,7 +278,7 @@ window.ixSnack = {
                         if ( autoComplete ) clearTimeout( autoComplete );
                         if ( typeof callback === 'function' ) callback( {data: data} );
                     }});
-                }, 0);
+				}, timeGap < 5? 30 : 0);//transition:none; 실행이후 1000/1초 이내로 transition을 실행하면 none이 무시되기 때문에 delay 처리
             }
         } else {
             var aniStyle = {};

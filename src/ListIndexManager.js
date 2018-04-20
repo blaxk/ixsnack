@@ -72,7 +72,6 @@ ixSnack.ListIndexManager = $B.Class.extend({
             if ( isInput ) {
 				var nextRangeIdx = ( rangeLength > 0 )? nextSelectIdx + this._options.viewLength : nextSelectIdx - this._options.viewLength;
 
-				//datumPoint 설정시 1개 정도 더 보여야 해서
                 if ( nextRangeIdx < 1 ) {
                     this._dispatch( 'correct', this._lastCloneStartIdx - (this._originStartIdx - this._selectIdx) );
                     nextSelectIdx = this._selectIdx + rangeLength;
