@@ -11,12 +11,12 @@ module.exports = function ( grunt ) {
             options: {
                 separator: '\n\n\n',
                 stripBanners: true,
-                banner: comment + ";(function ( window, $, $B ) {\n    'use strict';\n\n",
+                banner: comment + ";(function (window) {\n    'use strict';\n\n",
                 process: function( src, filepath ) {
                     var result = src.replace( /VERSION: '',/, "VERSION: '" + pkg.version + "'," );
                     return result.replace( /^/gm, '    ' );
                 },
-                footer: '\n})( typeof window === "object" ? window : undefined, jQuery, ixBand );'
+                footer: '\n})( typeof window === "object" ? window : undefined );'
             },
             dist: {
                 src: [

@@ -23,7 +23,9 @@ if ( SUPPORT_MODULE ) {
 		}
 	}
 
-	var ixSnack = window.ixSnack = {};
+	var ixSnack = window.ixSnack = {},
+		$B = window.ixBand || window.$B,
+		$ = window.jQuery || window.$;
 }
 
 

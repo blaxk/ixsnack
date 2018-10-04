@@ -1,10 +1,10 @@
 /**
  * ixsnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.5.0 (1810041354)
+ * @version v0.5.1 (1810041544)
  * The MIT License (MIT), http://ixsnack.com
  */
-;(function ( window, $, $B ) {
+;(function (window) {
     'use strict';
 
     var SUPPORT_MODULE = ( typeof module === 'object' && typeof module.exports === 'object' ),
@@ -32,7 +32,9 @@
     		}
     	}
     
-    	var ixSnack = window.ixSnack = {};
+    	var ixSnack = window.ixSnack = {},
+    		$B = window.ixBand || window.$B,
+    		$ = window.jQuery || window.$;
     }
     
     
@@ -47,7 +49,7 @@
      * Plugin에서 사용하는 공통기능
      */
     ixSnack = {
-        VERSION: '0.5.0',
+        VERSION: '0.5.1',
         MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
         TRANSFORM: (function () {
             if ( !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
@@ -3579,4 +3581,4 @@ ixSnack.RangeSlider = ixSnack.BaseClass.extend({
             this._$target.triggerHandler( {type: 'ixRangeSlider:' + type, values: this.getValues(), userInteraction: isUser, currentType: sliderType} );
         }
     }, 'ixSnack.RangeSlider');
-})( typeof window === "object" ? window : undefined, jQuery, ixBand );
+})( typeof window === "object" ? window : undefined );
