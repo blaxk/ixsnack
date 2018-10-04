@@ -1,23 +1,41 @@
 /**
- * ixSnack - Javascript Library (jQuery plugin)
+ * ixsnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.4.3 (1804201550)
+ * @version v0.5.0 (1810041354)
  * The MIT License (MIT), http://ixsnack.com
  */
-;(function ( $, $B ) {
+;(function ( window, $, $B ) {
     'use strict';
 
-    if ( window.ixSnack ) {
-        var MSG_OVERLAP_VARIABLE = '"ixSnack"이 중복 선언되어 정상 동작을 보장할 수 없습니다.';
+    var SUPPORT_MODULE = ( typeof module === 'object' && typeof module.exports === 'object' ),
+    	SUPPORT_WINDOW = ( typeof window === 'object' );
     
-        if ( console ) {
-            if ( console.warn ) {
-                console.warn( MSG_OVERLAP_VARIABLE );
-            } else {
-                $B.log( MSG_OVERLAP_VARIABLE );
-            }
-        }
+    var window = SUPPORT_WINDOW ? window : {},
+    	document = SUPPORT_WINDOW ? window.document : {},
+    	navigator = SUPPORT_WINDOW ? window.navigator : {};
+    
+    if ( SUPPORT_MODULE ) {
+    	var $B = require('ixband'),
+    		$ = require('jquery');
+    
+    	var ixSnack = {};
+    } else {
+    	if ( window.ixSnack ) {
+    		var MSG_OVERLAP_VARIABLE = '"ixSnack"이 중복 선언되어 정상 동작을 보장할 수 없습니다.';
+    
+    		if ( console ) {
+    			if ( console.warn ) {
+    				console.warn( MSG_OVERLAP_VARIABLE );
+    			} else {
+    				$B.log( MSG_OVERLAP_VARIABLE );
+    			}
+    		}
+    	}
+    
+    	var ixSnack = window.ixSnack = {};
     }
+    
+    
     
     var ENDPOINT_DECREASE = 0.3,//끝점 감쇠 수치
         SWIPE_SENSITIVITY = 0.5;//swipe 민감도
@@ -28,8 +46,8 @@
     /**
      * Plugin에서 사용하는 공통기능
      */
-    window.ixSnack = {
-        VERSION: '0.4.3',
+    ixSnack = {
+        VERSION: '0.5.0',
         MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
         TRANSFORM: (function () {
             if ( !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
@@ -3561,4 +3579,4 @@ ixSnack.RangeSlider = ixSnack.BaseClass.extend({
             this._$target.triggerHandler( {type: 'ixRangeSlider:' + type, values: this.getValues(), userInteraction: isUser, currentType: sliderType} );
         }
     }, 'ixSnack.RangeSlider');
-})( jQuery, ixBand );
+})( typeof window === "object" ? window : undefined, jQuery, ixBand );

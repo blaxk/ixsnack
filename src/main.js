@@ -1,14 +1,32 @@
-if ( window.ixSnack ) {
-    var MSG_OVERLAP_VARIABLE = '"ixSnack"이 중복 선언되어 정상 동작을 보장할 수 없습니다.';
+var SUPPORT_MODULE = ( typeof module === 'object' && typeof module.exports === 'object' ),
+	SUPPORT_WINDOW = ( typeof window === 'object' );
 
-    if ( console ) {
-        if ( console.warn ) {
-            console.warn( MSG_OVERLAP_VARIABLE );
-        } else {
-            $B.log( MSG_OVERLAP_VARIABLE );
-        }
-    }
+var window = SUPPORT_WINDOW ? window : {},
+	document = SUPPORT_WINDOW ? window.document : {},
+	navigator = SUPPORT_WINDOW ? window.navigator : {};
+
+if ( SUPPORT_MODULE ) {
+	var $B = require('ixband'),
+		$ = require('jquery');
+
+	var ixSnack = {};
+} else {
+	if ( window.ixSnack ) {
+		var MSG_OVERLAP_VARIABLE = '"ixSnack"이 중복 선언되어 정상 동작을 보장할 수 없습니다.';
+
+		if ( console ) {
+			if ( console.warn ) {
+				console.warn( MSG_OVERLAP_VARIABLE );
+			} else {
+				$B.log( MSG_OVERLAP_VARIABLE );
+			}
+		}
+	}
+
+	var ixSnack = window.ixSnack = {};
 }
+
+
 
 var ENDPOINT_DECREASE = 0.3,//끝점 감쇠 수치
     SWIPE_SENSITIVITY = 0.5;//swipe 민감도
@@ -19,7 +37,7 @@ var _pluginId = 1,
 /**
  * Plugin에서 사용하는 공통기능
  */
-window.ixSnack = {
+ixSnack = {
     VERSION: '',
     MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
     TRANSFORM: (function () {

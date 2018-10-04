@@ -2,7 +2,7 @@ module.exports = function ( grunt ) {
     'use strict';
 
     var pkg = grunt.file.readJSON( 'package.json' ),
-        comment = '/**\n * <%= pkg.name %> - Javascript Library (jQuery plugin)\n * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)\n * @version v<%= pkg.buildVersion %> (<%= grunt.template.today("yymmddHHMM") %>)\n * The MIT License (MIT), http://ixsnack.com\n */\n';
+        comment = '/**\n * <%= pkg.name %> - Javascript Library (jQuery plugin)\n * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)\n * @version v<%= pkg.version %> (<%= grunt.template.today("yymmddHHMM") %>)\n * The MIT License (MIT), http://ixsnack.com\n */\n';
 
     // Project configuration.
     grunt.initConfig({
@@ -11,12 +11,12 @@ module.exports = function ( grunt ) {
             options: {
                 separator: '\n\n\n',
                 stripBanners: true,
-                banner: comment + ";(function ( $, $B ) {\n    'use strict';\n\n",
+                banner: comment + ";(function ( window, $, $B ) {\n    'use strict';\n\n",
                 process: function( src, filepath ) {
-                    var result = src.replace( /VERSION: '',/, "VERSION: '" + pkg.buildVersion + "'," );
+                    var result = src.replace( /VERSION: '',/, "VERSION: '" + pkg.version + "'," );
                     return result.replace( /^/gm, '    ' );
                 },
-                footer: '\n})( jQuery, ixBand );'
+                footer: '\n})( typeof window === "object" ? window : undefined, jQuery, ixBand );'
             },
             dist: {
                 src: [
@@ -36,7 +36,7 @@ module.exports = function ( grunt ) {
                     'src/Slider.js',
                     'src/RangeSlider.js'
                 ],
-                dest: 'dist/<%= pkg.name %>_<%= pkg.version %>.js'
+                dest: 'dist/<%= pkg.fileName %>.js'
             }
         },
         'uglify': {
@@ -49,7 +49,7 @@ module.exports = function ( grunt ) {
 					{
 						expand: true,
 						cwd: 'dist',
-						src: ['<%= pkg.name %>_<%= pkg.version %>.js'],
+						src: ['<%= pkg.fileName %>.js'],
 						dest: 'dist/',
 						rename: function ( dest, src ) {
 							return dest + src.replace( /.js$/, '.min.js' );
@@ -58,7 +58,7 @@ module.exports = function ( grunt ) {
 					{
 						expand: true,
 						cwd: 'dist',
-						src: ['<%= pkg.name %>_<%= pkg.version %>.js'],
+						src: ['<%= pkg.fileName %>.js'],
 						dest: 'dist/',
 						rename: function ( dest, src ) {
 							return dest + 'ixSnack.min.js';
@@ -83,7 +83,7 @@ module.exports = function ( grunt ) {
                     }, {
                         pattern: /\/ixSnack_([0-9.]+)(.min)*.js/g,
                         replacement: function ( match, p1, p2 ) {
-                            return '/ixSnack_' + pkg.version + ( p2 || '' ) + '.js';
+                            return '/' + pkg.fileName + ( p2 || '' ) + '.js';
                         }
                     }]
                 }
@@ -109,6 +109,6 @@ module.exports = function ( grunt ) {
     grunt.registerTask( 'default', ['concat', 'watch'] );
     //JS compress
     grunt.registerTask( 'compress', ['uglify'] );
-    //*.html ixband version replace
+    //*.html ixsnack version replace
     grunt.registerTask( 'html-replace', ['string-replace'] );
 };
