@@ -6,7 +6,7 @@
   "main": "dist/ixSnack_0.5.js",
   "dependencies": {
     "ixband": "^1.2.1",
-    "jquery": "1.11.0"
+    "jquery": "^1.11.0"
   },
   "devDependencies": {
     "grunt": "^1.0.3",
