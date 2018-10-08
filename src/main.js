@@ -43,7 +43,7 @@ ixSnack = {
     VERSION: '',
     MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
     TRANSFORM: (function () {
-        if ( !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
+        if ( SUPPORT_WINDOW && !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
             var prefixes = 'transform WebkitTransform'.split( ' ' );
             for ( var i = 0; i < prefixes.length; ++i ) {
                 if ( document.createElement('div').style[prefixes[i]] !== undefined ) {

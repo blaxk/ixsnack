@@ -1,12 +1,12 @@
 {
   "name": "ixsnack",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "fileName": "ixSnack_0.5",
   "description": "Javascript UI Library (slide, slider, carousel ...)",
   "main": "dist/ixSnack_0.5.js",
   "dependencies": {
     "ixband": "^1.2.1",
-    "jquery": "^1.11.0"
+    "jquery": "^3.3.1"
   },
   "devDependencies": {
     "grunt": "^1.0.3",
