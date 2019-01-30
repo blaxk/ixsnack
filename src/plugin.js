@@ -32,24 +32,24 @@ if ( $.fn && typeof $.fn.extend === 'function' ) {
 			}
 		},
 
-		ixSlideMax: function ( val1, val2 ) {
-			return ixSnack.setPlugin( this, 'slide-max', ixSnack.SlideMax, val1, val2 );
+		ixSlideMax: function ( val1, val2, val3 ) {
+			return ixSnack.setPlugin( this, 'slide-max', ixSnack.SlideMax, val1, val2, val3 );
 		},
 
-		ixSlideLite: function ( val1, val2 ) {
-			return ixSnack.setPlugin( this, 'slide-lite', ixSnack.SlideLite, val1, val2 );
+		ixSlideLite: function ( val1, val2, val3 ) {
+			return ixSnack.setPlugin( this, 'slide-lite', ixSnack.SlideLite, val1, val2, val3 );
 		},
 
-		ixOverlayList: function ( val1, val2 ) {
-			return ixSnack.setPlugin( this, 'overlay-list', ixSnack.OverlayList, val1, val2 );
+		ixOverlayList: function ( val1, val2, val3 ) {
+			return ixSnack.setPlugin( this, 'overlay-list', ixSnack.OverlayList, val1, val2, val3 );
 		},
 
-		ixRangeSlider: function ( val1, val2 ) {
-			return ixSnack.setPlugin( this, 'range-slider', ixSnack.RangeSlider, val1, val2 );
+		ixRangeSlider: function ( val1, val2, val3 ) {
+			return ixSnack.setPlugin( this, 'range-slider', ixSnack.RangeSlider, val1, val2, val3 );
 		},
 
-		ixSlider: function ( val1, val2 ) {
-			return ixSnack.setPlugin( this, 'slider', ixSnack.Slider, val1, val2 );
+		ixSlider: function ( val1, val2, val3 ) {
+			return ixSnack.setPlugin( this, 'slider', ixSnack.Slider, val1, val2, val3 );
 		},
 
 		ixRatioSize: function ( value ) {

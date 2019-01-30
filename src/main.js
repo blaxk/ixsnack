@@ -55,15 +55,15 @@ ixSnack = {
         return null;
     }()),
 
-    setPlugin: function ( $target, pluginName, plugin, val1, val2 ) {
+	setPlugin: function ( $target, pluginName, plugin, val1, val2, val3 ) {
         //method 호출
         if ( typeof val1 === 'string' ) {
             //getter
             if ( /^get[A-Z]|^is[A-Z]/.test(val1) ) {
-                return ixSnack.callPlugin( $target.eq(0), pluginName, val1, val2 );
+				return ixSnack.callPlugin( $target.eq(0), pluginName, val1, val2, val3 );
             } else {
                 $target.each( function ( idx, el ) {
-                    ixSnack.callPlugin( $(el), pluginName, val1, val2 );
+					ixSnack.callPlugin( $(el), pluginName, val1, val2, val3 );
                 });
             }
         } else {
@@ -95,10 +95,10 @@ ixSnack = {
         delete _pluginPool[$target.prop(pluginName)];
     },
 
-    callPlugin: function ( $target, pluginName, method, val1, val2 ) {
+	callPlugin: function ( $target, pluginName, method, val1, val2, val3 ) {
         var pluginId = $target.prop( 'ix-' + pluginName );
         if ( _pluginPool[pluginId] && typeof _pluginPool[pluginId][method] === 'function' ) {
-            return _pluginPool[pluginId][method]( val1, val2 );
+			return _pluginPool[pluginId][method]( val1, val2, val3 );
         }
     },
 
