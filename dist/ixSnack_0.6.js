@@ -1,7 +1,7 @@
 /**
  * ixsnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.6.0 (1901301329)
+ * @version v0.6.1 (1901301357)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function (window) {
@@ -49,7 +49,7 @@
      * Plugin에서 사용하는 공통기능
      */
     ixSnack = $B.object.extend(ixSnack, {
-        VERSION: '0.6.0',
+        VERSION: '0.6.1',
         MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
         TRANSFORM: (function () {
             if ( SUPPORT_WINDOW && !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
@@ -1178,7 +1178,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     
         //외부에서 origin index로 설정
         _selectOriginIdx: function ( originIdx, direction ) {
-            if ( originIdx > this._originLength || originIdx < 0 ) return;
+    		if (originIdx > this._originLength || originIdx < 0 || this._originIdx == originIdx) return;
     
     		if (direction === 'next') {
     			this._next(originIdx - this._originIdx, true);
@@ -1294,7 +1294,7 @@ ixSnack.SlideLite = ixSnack.BaseClass.extend({
         },
     
     	changeIndex: function ( idx, direction ) {
-    		if (idx > this._totalLength || idx < 0 || !this._totalLength) return;
+    		if (idx > this._totalLength || idx < 0 || !this._totalLength || this._selectIdx == idx) return;
     		
     		if (direction === 'next') {
     			this.next(idx);
@@ -1761,7 +1761,7 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
         },
     
     	changeIndex: function ( idx, direction ) {
-    		if (idx > this._totalLength || idx < 0 || !this._totalLength) return;
+    		if (idx > this._totalLength || idx < 0 || !this._totalLength || this._selectIdx == idx) return;
     
     		if (direction === 'next') {
     			this.next(idx, 'changeIndex');

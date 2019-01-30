@@ -413,7 +413,7 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
 
     //외부에서 origin index로 설정
     _selectOriginIdx: function ( originIdx, direction ) {
-        if ( originIdx > this._originLength || originIdx < 0 ) return;
+		if (originIdx > this._originLength || originIdx < 0 || this._originIdx == originIdx) return;
 
 		if (direction === 'next') {
 			this._next(originIdx - this._originIdx, true);

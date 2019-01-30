@@ -64,7 +64,7 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
     },
 
 	changeIndex: function ( idx, direction ) {
-		if (idx > this._totalLength || idx < 0 || !this._totalLength) return;
+		if (idx > this._totalLength || idx < 0 || !this._totalLength || this._selectIdx == idx) return;
 
 		if (direction === 'next') {
 			this.next(idx, 'changeIndex');
