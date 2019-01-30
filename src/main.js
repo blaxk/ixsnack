@@ -95,10 +95,10 @@ ixSnack = {
         delete _pluginPool[$target.prop(pluginName)];
     },
 
-	callPlugin: function ( $target, pluginName, method, val1, val2, val3 ) {
+	callPlugin: function ( $target, pluginName, method, val1, val2 ) {
         var pluginId = $target.prop( 'ix-' + pluginName );
         if ( _pluginPool[pluginId] && typeof _pluginPool[pluginId][method] === 'function' ) {
-			return _pluginPool[pluginId][method]( val1, val2, val3 );
+			return _pluginPool[pluginId][method]( val1, val2 );
         }
     },
 

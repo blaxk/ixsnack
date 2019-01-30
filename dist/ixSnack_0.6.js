@@ -1,7 +1,7 @@
 /**
  * ixsnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.6.0 (1901301240)
+ * @version v0.6.0 (1901301315)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function (window) {
@@ -64,15 +64,15 @@
             return null;
         }()),
     
-        setPlugin: function ( $target, pluginName, plugin, val1, val2 ) {
+    	setPlugin: function ( $target, pluginName, plugin, val1, val2, val3 ) {
             //method 호출
             if ( typeof val1 === 'string' ) {
                 //getter
                 if ( /^get[A-Z]|^is[A-Z]/.test(val1) ) {
-                    return ixSnack.callPlugin( $target.eq(0), pluginName, val1, val2 );
+    				return ixSnack.callPlugin( $target.eq(0), pluginName, val1, val2, val3 );
                 } else {
                     $target.each( function ( idx, el ) {
-                        ixSnack.callPlugin( $(el), pluginName, val1, val2 );
+    					ixSnack.callPlugin( $(el), pluginName, val1, val2, val3 );
                     });
                 }
             } else {
@@ -104,10 +104,10 @@
             delete _pluginPool[$target.prop(pluginName)];
         },
     
-        callPlugin: function ( $target, pluginName, method, val1, val2 ) {
+    	callPlugin: function ( $target, pluginName, method, val1, val2 ) {
             var pluginId = $target.prop( 'ix-' + pluginName );
             if ( _pluginPool[pluginId] && typeof _pluginPool[pluginId][method] === 'function' ) {
-                return _pluginPool[pluginId][method]( val1, val2 );
+    			return _pluginPool[pluginId][method]( val1, val2 );
             }
         },
     
@@ -361,24 +361,24 @@
     			}
     		},
     
-    		ixSlideMax: function ( val1, val2 ) {
-    			return ixSnack.setPlugin( this, 'slide-max', ixSnack.SlideMax, val1, val2 );
+    		ixSlideMax: function ( val1, val2, val3 ) {
+    			return ixSnack.setPlugin( this, 'slide-max', ixSnack.SlideMax, val1, val2, val3 );
     		},
     
-    		ixSlideLite: function ( val1, val2 ) {
-    			return ixSnack.setPlugin( this, 'slide-lite', ixSnack.SlideLite, val1, val2 );
+    		ixSlideLite: function ( val1, val2, val3 ) {
+    			return ixSnack.setPlugin( this, 'slide-lite', ixSnack.SlideLite, val1, val2, val3 );
     		},
     
-    		ixOverlayList: function ( val1, val2 ) {
-    			return ixSnack.setPlugin( this, 'overlay-list', ixSnack.OverlayList, val1, val2 );
+    		ixOverlayList: function ( val1, val2, val3 ) {
+    			return ixSnack.setPlugin( this, 'overlay-list', ixSnack.OverlayList, val1, val2, val3 );
     		},
     
-    		ixRangeSlider: function ( val1, val2 ) {
-    			return ixSnack.setPlugin( this, 'range-slider', ixSnack.RangeSlider, val1, val2 );
+    		ixRangeSlider: function ( val1, val2, val3 ) {
+    			return ixSnack.setPlugin( this, 'range-slider', ixSnack.RangeSlider, val1, val2, val3 );
     		},
     
-    		ixSlider: function ( val1, val2 ) {
-    			return ixSnack.setPlugin( this, 'slider', ixSnack.Slider, val1, val2 );
+    		ixSlider: function ( val1, val2, val3 ) {
+    			return ixSnack.setPlugin( this, 'slider', ixSnack.Slider, val1, val2, val3 );
     		},
     
     		ixRatioSize: function ( value ) {
