@@ -39,7 +39,7 @@ var _pluginId = 1,
 /**
  * Plugin에서 사용하는 공통기능
  */
-ixSnack = {
+ixSnack = $B.object.extend(ixSnack, {
     VERSION: '',
     MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
     TRANSFORM: (function () {
@@ -315,4 +315,4 @@ ixSnack = {
             }
         }
     }
-};
+});
