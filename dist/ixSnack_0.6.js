@@ -1,7 +1,7 @@
 /**
  * ixsnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.6.1 (1901301357)
+ * @version v0.6.1 (1901301412)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function (window) {
@@ -1181,9 +1181,9 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     		if (originIdx > this._originLength || originIdx < 0 || this._originIdx == originIdx) return;
     
     		if (direction === 'next') {
-    			this._next(originIdx - this._originIdx, true);
+    			this._next( Math.abs(originIdx - this._originIdx), true);
     		} else if (direction === 'prev') {
-    			this._prev(this._originIdx - originIdx, true);
+    			this._prev( Math.abs(this._originIdx - originIdx), true);
     		} else {
     			if (this._originIdx < originIdx) {
     				this._next(originIdx - this._originIdx, true);
