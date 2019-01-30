@@ -63,14 +63,20 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
         this._pauseTimer();
     },
 
-    changeIndex: function ( idx ) {
-        if ( idx > this._totalLength || idx < 0 || !this._totalLength ) return;
+	changeIndex: function ( idx, direction ) {
+		if (idx > this._totalLength || idx < 0 || !this._totalLength) return;
 
-        if ( this._selectIdx < idx ) {
-            this.next( idx, 'changeIndex' );
-        } else if ( this._selectIdx > idx ) {
-            this.prev( idx, 'changeIndex' );
-        }
+		if (direction === 'next') {
+			this.next(idx, 'changeIndex');
+		} else if (direction === 'prev') {
+			this.prev(idx, 'changeIndex');
+		} else {
+			if (this._selectIdx < idx) {
+				this.next(idx, 'changeIndex');
+			} else if (this._selectIdx > idx) {
+				this.prev(idx, 'changeIndex');
+			}
+		}
     },
 
     next: function ( selectIdx, state ) {

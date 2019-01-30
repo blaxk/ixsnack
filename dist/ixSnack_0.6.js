@@ -1,7 +1,7 @@
 /**
  * ixsnack - Javascript Library (jQuery plugin)
  * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.5.2 (1810080948)
+ * @version v0.6.0 (1901301240)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function (window) {
@@ -49,7 +49,7 @@
      * Plugin에서 사용하는 공통기능
      */
     ixSnack = {
-        VERSION: '0.5.2',
+        VERSION: '0.6.0',
         MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
         TRANSFORM: (function () {
             if ( SUPPORT_WINDOW && !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
@@ -829,8 +829,8 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
             this._pauseTimer();
         },
     
-        changeIndex: function ( originIdx ) {
-            this._selectOriginIdx( originIdx );
+        changeIndex: function ( originIdx, direction ) {
+    		this._selectOriginIdx( originIdx, direction );
         },
     
         next: function ( moveLength ) {
@@ -1177,14 +1177,20 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         },
     
         //외부에서 origin index로 설정
-        _selectOriginIdx: function ( originIdx ) {
+        _selectOriginIdx: function ( originIdx, direction ) {
             if ( originIdx > this._originLength || originIdx < 0 ) return;
     
-            if ( this._originIdx < originIdx ) {
-                this._next( originIdx - this._originIdx, true );
-            } else if ( this._originIdx > originIdx ) {
-                this._prev( this._originIdx - originIdx, true );
-            }
+    		if (direction === 'next') {
+    			this._next(originIdx - this._originIdx, true);
+    		} else if (direction === 'prev') {
+    			this._prev(this._originIdx - originIdx, true);
+    		} else {
+    			if (this._originIdx < originIdx) {
+    				this._next(originIdx - this._originIdx, true);
+    			} else if (this._originIdx > originIdx) {
+    				this._prev(this._originIdx - originIdx, true);
+    			}
+    		}
         },
     
         _getItemMargins: function () {
@@ -1287,14 +1293,20 @@ ixSnack.SlideLite = ixSnack.BaseClass.extend({
             this._pauseTimer();
         },
     
-        changeIndex: function ( idx ) {
-            if ( idx > this._totalLength || idx < 0 || !this._totalLength ) return;
-    
-            if ( this._selectIdx < idx ) {
-                this.next( idx );
-            } else if ( this._selectIdx > idx ) {
-                this.prev( idx );
-            }
+    	changeIndex: function ( idx, direction ) {
+    		if (idx > this._totalLength || idx < 0 || !this._totalLength) return;
+    		
+    		if (direction === 'next') {
+    			this.next(idx);
+    		} else if (direction === 'prev') {
+    			this.prev(idx);
+    		} else {
+    			if (this._selectIdx < idx) {
+    				this.next(idx);
+    			} else if (this._selectIdx > idx) {
+    				this.prev(idx);
+    			}
+    		}
         },
     
         next: function ( selectIdx, isSwipe ) {
@@ -1748,14 +1760,20 @@ ixSnack.OverlayList = ixSnack.BaseClass.extend({
             this._pauseTimer();
         },
     
-        changeIndex: function ( idx ) {
-            if ( idx > this._totalLength || idx < 0 || !this._totalLength ) return;
+    	changeIndex: function ( idx, direction ) {
+    		if (idx > this._totalLength || idx < 0 || !this._totalLength) return;
     
-            if ( this._selectIdx < idx ) {
-                this.next( idx, 'changeIndex' );
-            } else if ( this._selectIdx > idx ) {
-                this.prev( idx, 'changeIndex' );
-            }
+    		if (direction === 'next') {
+    			this.next(idx, 'changeIndex');
+    		} else if (direction === 'prev') {
+    			this.prev(idx, 'changeIndex');
+    		} else {
+    			if (this._selectIdx < idx) {
+    				this.next(idx, 'changeIndex');
+    			} else if (this._selectIdx > idx) {
+    				this.prev(idx, 'changeIndex');
+    			}
+    		}
         },
     
         next: function ( selectIdx, state ) {

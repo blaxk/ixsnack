@@ -58,14 +58,20 @@ ixSnack.SlideLite = ixSnack.BaseClass.extend({
         this._pauseTimer();
     },
 
-    changeIndex: function ( idx ) {
-        if ( idx > this._totalLength || idx < 0 || !this._totalLength ) return;
-
-        if ( this._selectIdx < idx ) {
-            this.next( idx );
-        } else if ( this._selectIdx > idx ) {
-            this.prev( idx );
-        }
+	changeIndex: function ( idx, direction ) {
+		if (idx > this._totalLength || idx < 0 || !this._totalLength) return;
+		
+		if (direction === 'next') {
+			this.next(idx);
+		} else if (direction === 'prev') {
+			this.prev(idx);
+		} else {
+			if (this._selectIdx < idx) {
+				this.next(idx);
+			} else if (this._selectIdx > idx) {
+				this.prev(idx);
+			}
+		}
     },
 
     next: function ( selectIdx, isSwipe ) {

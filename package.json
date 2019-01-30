@@ -1,16 +1,16 @@
 {
   "name": "ixsnack",
-  "version": "0.5.2",
-  "fileName": "ixSnack_0.5",
+  "version": "0.6.0",
+  "fileName": "ixSnack_0.6",
   "description": "Javascript UI Library (slide, slider, carousel ...)",
-  "main": "dist/ixSnack_0.5.js",
+  "main": "dist/ixSnack_0.6.js",
   "dependencies": {
     "ixband": "^1.2.1",
-    "jquery": "^3.3.1"
+    "jquery": "^3.0.0"
   },
   "devDependencies": {
     "grunt": "^1.0.3",
-    "grunt-cli": "^1.2.1",
+    "grunt-cli": "^1.3.1",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "^4.0.0",
     "grunt-contrib-watch": "^1.1.0",

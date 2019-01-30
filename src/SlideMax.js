@@ -64,8 +64,8 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
         this._pauseTimer();
     },
 
-    changeIndex: function ( originIdx ) {
-        this._selectOriginIdx( originIdx );
+    changeIndex: function ( originIdx, direction ) {
+		this._selectOriginIdx( originIdx, direction );
     },
 
     next: function ( moveLength ) {
@@ -412,14 +412,20 @@ ixSnack.SlideMax = ixSnack.BaseClass.extend({
     },
 
     //외부에서 origin index로 설정
-    _selectOriginIdx: function ( originIdx ) {
+    _selectOriginIdx: function ( originIdx, direction ) {
         if ( originIdx > this._originLength || originIdx < 0 ) return;
 
-        if ( this._originIdx < originIdx ) {
-            this._next( originIdx - this._originIdx, true );
-        } else if ( this._originIdx > originIdx ) {
-            this._prev( this._originIdx - originIdx, true );
-        }
+		if (direction === 'next') {
+			this._next(originIdx - this._originIdx, true);
+		} else if (direction === 'prev') {
+			this._prev(this._originIdx - originIdx, true);
+		} else {
+			if (this._originIdx < originIdx) {
+				this._next(originIdx - this._originIdx, true);
+			} else if (this._originIdx > originIdx) {
+				this._prev(this._originIdx - originIdx, true);
+			}
+		}
     },
 
     _getItemMargins: function () {
