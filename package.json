@@ -1,6 +1,6 @@
 {
   "name": "ixsnack",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "fileName": "ixSnack_0.6",
   "description": "Javascript UI Library (slide, slider, carousel ...)",
   "main": "dist/ixSnack_0.6.js",

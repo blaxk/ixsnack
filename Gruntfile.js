@@ -2,7 +2,7 @@ module.exports = function ( grunt ) {
     'use strict';
 
     var pkg = grunt.file.readJSON( 'package.json' ),
-        comment = '/**\n * <%= pkg.name %> - Javascript Library (jQuery plugin)\n * jQuery v1.8~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)\n * @version v<%= pkg.version %> (<%= grunt.template.today("yymmddHHMM") %>)\n * The MIT License (MIT), http://ixsnack.com\n */\n';
+        comment = '/**\n * <%= pkg.name %> - Javascript Library (jQuery plugin)\n * jQuery v1.9~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)\n * @version v<%= pkg.version %> (<%= grunt.template.today("yymmddHHMM") %>)\n * The MIT License (MIT), http://ixsnack.com\n */\n';
 
     // Project configuration.
     grunt.initConfig({
