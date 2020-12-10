@@ -1,4 +1,8 @@
 # ixSnack.js
+
+[![NPM version](https://img.shields.io/npm/v/ixsnack.svg)](https://www.npmjs.com/package/ixsnack)
+[![NPM downloads](https://img.shields.io/npm/dm/ixsnack.svg)](https://www.npmjs.com/package/ixsnack)
+
 **jQuery + ixBand 기반으로 제작된 Javascript UI Library**
 
 좀더 간편하면서 직관적이며 확장성을 보장하면서도 안정적인 UI Library
