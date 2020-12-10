@@ -1,7 +1,7 @@
 /**
  * ixsnack - Javascript Library (jQuery plugin)
  * jQuery v1.9~ (http://jquery.com) + ixBand v1.0~ (http://ixband.com)
- * @version v0.6.2 (1901311608)
+ * @version v0.6.4 (2012101609)
  * The MIT License (MIT), http://ixsnack.com
  */
 ;(function (window) {
@@ -49,7 +49,7 @@
      * Plugin에서 사용하는 공통기능
      */
     ixSnack = $B.object.extend(ixSnack, {
-        VERSION: '0.6.2',
+        VERSION: '0.6.4',
         MS_POINTER: ( navigator.pointerEnabled || navigator.msPointerEnabled ),
         TRANSFORM: (function () {
             if ( SUPPORT_WINDOW && !($B.ua.MSIE && $B.ua.DOC_MODE_IE10_LT) ) {
